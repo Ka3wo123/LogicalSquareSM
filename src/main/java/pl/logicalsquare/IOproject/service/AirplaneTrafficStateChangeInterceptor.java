@@ -22,7 +22,7 @@ public class AirplaneTrafficStateChangeInterceptor extends StateMachineIntercept
     @Override
     public void preStateChange(State<AirplaneTrafficState, AirplaneTrafficEvent> state, Message<AirplaneTrafficEvent> message, Transition<AirplaneTrafficState, AirplaneTrafficEvent> transition, StateMachine<AirplaneTrafficState, AirplaneTrafficEvent> stateMachine, StateMachine<AirplaneTrafficState, AirplaneTrafficEvent> rootStateMachine) {
         Optional
-                .ofNullable(message).flatMap(msg -> Optional.ofNullable((Integer) msg.getHeaders().getOrDefault(AirplaneTrafficService.PARENT_ID_HEADER, -1))).ifPresent(airplaneId -> {
+                .ofNullable(message).flatMap(msg -> Optional.ofNullable((Integer) msg.getHeaders().getOrDefault(AirplaneTrafficService.AIRPLANE_ID_HEADER, -1))).ifPresent(airplaneId -> {
                     Optional<Airplane> airplane = airplaneRepository.findById(airplaneId);
                     airplane.get().setState(state.getId());
                     airplaneRepository.save(airplane.get());
