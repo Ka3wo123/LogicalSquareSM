@@ -1,10 +1,14 @@
 package pl.logicalsquare.IOproject.drawingLogic;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 public class StageInitializer implements ApplicationListener<SpanningTreeApplication.StageReadyEvent> {
@@ -13,21 +17,15 @@ public class StageInitializer implements ApplicationListener<SpanningTreeApplica
     public void onApplicationEvent(SpanningTreeApplication.StageReadyEvent event) {
         Stage stage = event.getStage();
 
-        // Instantiate your SpanningTreeDrawer (replace YourSpanningTreeDrawer with your actual class)
-        YourSpanningTreeDrawer spanningTreeDrawer = new YourSpanningTreeDrawer();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/init.fxml"));
+            Scene scene = new Scene(loader.load());
 
-        // Create a Pane to hold your drawing
-        Pane root = new Pane();
-
-        // Add your spanning tree drawing to the root pane
-        root.getChildren().add(spanningTreeDrawer.drawSpanningTree());
-
-        // Create a scene with the root pane
-        Scene scene = new Scene(root, 800, 600);
-
-        // Set the scene and show the stage
-        stage.setScene(scene);
-        stage.show();
+            stage.setScene(scene);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 

@@ -1,6 +1,31 @@
 package pl.logicalsquare.IOproject.algorithms;
 
-public class LogicalSquare {
+import javafx.scene.Group;
 
-    // -------------- Tu idzie algorytm ten co jest w materiałach
+public class LogicalSquare {
+/*
+           A ------------- E
+           |               |
+    |      |               |     ^
+    v      |               |     |
+           |               |
+           I ------------- O
+
+                  -->
+
+
+      Direction A&I -> I&O -> O&E
+ */
+
+    public void compute() {
+
+
+
+    }
+
+    public void spanTree2StateMachine(Group spanTree, Group stateMachine) {
+
+    }
+
+
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760" prefWidth="1400" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.PrimaryController">
+   <children>
+      <Button fx:id="generateButton" disable="true" layoutX="14.0" layoutY="26.0" mnemonicParsing="false" onAction="#renderTree" text="Generate" />
+      <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0" style="-fx-border-width: 5;">
+         <content>
+            <VBox fx:id="vbox" prefHeight="554.0" prefWidth="347.0" />
+         </content></ScrollPane>
+      <Pane fx:id="squaresPane" layoutX="432.0" layoutY="130.0" prefHeight="610.0" prefWidth="943.0" style="-fx-border-width: 5;" />
+      <Button fx:id="nextButton" layoutX="13.0" layoutY="62.0" mnemonicParsing="false" onAction="#appendState" text="Append state" />
+      <Button fx:id="clearButton" layoutX="85.0" layoutY="26.0" mnemonicParsing="false" onAction="#clear" text="Clear" />
+   </children>
+</AnchorPane>
