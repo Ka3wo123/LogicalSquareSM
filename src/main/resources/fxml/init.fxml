@@ -8,7 +8,7 @@
       <Button fx:id="generateButton" disable="true" layoutX="14.0" layoutY="26.0" mnemonicParsing="false" onAction="#renderTree" text="Generate" />
       <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0" style="-fx-border-width: 5;">
          <content>
-            <VBox fx:id="vbox" prefHeight="554.0" prefWidth="347.0" />
+            <VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="554.0" prefWidth="347.0" />
          </content></ScrollPane>
       <Pane fx:id="squaresPane" layoutX="432.0" layoutY="130.0" prefHeight="610.0" prefWidth="943.0" style="-fx-border-width: 5;" />
       <Button fx:id="nextButton" layoutX="13.0" layoutY="62.0" mnemonicParsing="false" onAction="#appendState" text="Append state" />

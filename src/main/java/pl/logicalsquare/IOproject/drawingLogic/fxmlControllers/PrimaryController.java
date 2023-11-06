@@ -1,6 +1,7 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -31,19 +32,18 @@ public class PrimaryController {
     private List<AirplaneTrafficState> E;
     private List<AirplaneTrafficState> I;
     private List<AirplaneTrafficState> O;
-    private Rectangle square;
     @FXML
     private VBox vbox;
 
-    int hXstart = 100;
+    int hXstart = 200;
     int hYstart = 50;
-    int hXend = 200;
+    int hXend = 300;
     int hYend = 50;
 
-    int vXstart = 100;
-    int vYstart = 200;
+    int vXstart = 200;
+    int vYstart = 50;
     int vXend = 200;
-    int vYend = 200;
+    int vYend = 150;
 
     public PrimaryController() {
         spanTree = new Group();
@@ -60,10 +60,6 @@ public class PrimaryController {
         generateButton.setDisable(false);
 
 
-        square = new Rectangle(70, 70);
-        square.setX(50);
-        square.setY(50);
-
         level++;
 
         A.add(AirplaneTrafficState.getState(level, "A"));
@@ -71,21 +67,24 @@ public class PrimaryController {
         I.add(AirplaneTrafficState.getState(level, "I"));
         O.add(AirplaneTrafficState.getState(level, "O"));
 
-        //Line edge = createEdge(hXstart, hYstart, hXend, hYend);
-        //spanTree.getChildren().add(edge);
-        addAirplaneState(spanTree, A.get(level - 1), hXstart, hYstart);
-        addAirplaneState(spanTree, E.get(level - 1), hXend, hYend);
+        addAirplaneState(spanTree, A.get(level - 1), 195, 45);
+        addAirplaneState(spanTree, E.get(level - 1), hXend + 2, hYend - 2);
+        addAirplaneState(spanTree, I.get(level - 1), vXend - 5, vYstart + 5);
+        addAirplaneState(spanTree, O.get(level - 1), vXend + 5, vYend + 5);
 
-        drawPane.setContent(vbox);
 
-        //edge = createEdge(vXstart, vYstart, vXend, vYend);
-        //spanTree.getChildren().add(edge);
-        addAirplaneState(spanTree, I.get(level - 1), hXstart, hYstart);
-        addAirplaneState(spanTree, O.get(level - 1), hXstart, hYstart);
+        // square creating
+        Line edge = createEdge(hXstart, hYstart, hXend, hYend);
+        Line edge2 = createEdge(vXstart, vYstart, vXend, vYend);
+        Line edge3 = createEdge(hXstart, hYstart + 100, hXend, hYend + 100);
+        Line edge4 = createEdge(vXstart + 100, vYstart, vXend + 100, vYend);
+        Line edge5 = createEdge(hXstart, hYstart, hXend, hYend + 100);
+        Line edge6 = createEdge(hXend, hYend, vXend, vYend);
 
-//        drawPane.getChildren().add(spanTree);
+        spanTree.getChildren().addAll(edge, edge2, edge3, edge4, edge5, edge6);
 
-        drawPane.setContent(spanTree);
+        vbox.setAlignment(Pos.TOP_CENTER);
+        vbox.getChildren().add(spanTree);
 
         spanTree = new Group();
 
@@ -102,7 +101,6 @@ public class PrimaryController {
     }
 
     private void drawSpanningTree() {
-
 
 
         generateButton.setDisable(true);
@@ -138,18 +136,11 @@ public class PrimaryController {
         addInitialState(spanTree);
         //drawPane.getChildren().clear();
         drawPane.setContent(null);
+        vbox.getChildren().clear();
         A = new ArrayList<>();
         E = new ArrayList<>();
         I = new ArrayList<>();
         O = new ArrayList<>();
         level = 0;
-        hXstart = 100;
-        hYstart = 50;
-        hXend = 200;
-        hYend = 50;
-        vXstart = 100;
-        vYstart = 200;
-        vXend = 200;
-        vYend = 200;
     }
 }
