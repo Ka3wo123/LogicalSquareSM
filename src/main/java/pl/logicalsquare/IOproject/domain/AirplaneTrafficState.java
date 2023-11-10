@@ -1,19 +1,35 @@
 package pl.logicalsquare.IOproject.domain;
 
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 public enum AirplaneTrafficState {
-    INIT("0", 0),
-    TAXIING("A", 1), IMMOBILISING("E", 1), NOT_IMMOBILISING("I", 1), STOP("O", 1),
-    ENGINE_ON("A", 2), OPEN("E", 2), STEPS("I", 2), ENGINE_OFF("O", 2),
-    UNLOADING("A", 3), LOCKED("E", 3), CLEANED("I", 3), EMPTY("O", 3);
+    INIT("0", 0, true),
+    TAXIING("A", 1, true), IMMOBILISING("E", 1, true), NOT_IMMOBILISING("I", 1, true), STOP("O", 1, true),
+    ENGINE_ON("A", 2, true), OPEN("E", 2, true), STEPS("I", 2, true), ENGINE_OFF("O", 2, true),
+    UNLOADING("A", 3, true), LOCKED("E", 3, true), CLEANED("I", 3, true), EMPTY("O", 3, true);
 
     private String sentence;
     private int level;
-    AirplaneTrafficState(String relation, int level) {
-        this.sentence = relation;
+    private boolean isTrue;
+//    AirplaneTrafficState(String relation, int level) {
+//        this.sentence = relation;
+//        this.level = level;
+//    }
+
+    AirplaneTrafficState(String sentence, int level, boolean isTrue) {
+        this.sentence = sentence;
         this.level = level;
+        this.isTrue = isTrue;
+    }
+
+    public void setStatus(boolean newStatus) {
+        this.isTrue = newStatus;
+    }
+
+    public boolean getIsTrue() {
+        return isTrue;
     }
 
     public static AirplaneTrafficState getState(int level, String sentence) {

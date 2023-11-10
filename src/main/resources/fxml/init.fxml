@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -8,7 +9,10 @@
       <Button fx:id="generateButton" disable="true" layoutX="14.0" layoutY="26.0" mnemonicParsing="false" onAction="#renderTree" text="Generate" />
       <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0" style="-fx-border-width: 5;">
          <content>
-            <VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="554.0" prefWidth="347.0" />
+            <VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="554.0" prefWidth="347.0" spacing="25.0">
+               <padding>
+                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+               </padding></VBox>
          </content></ScrollPane>
       <Pane fx:id="squaresPane" layoutX="432.0" layoutY="130.0" prefHeight="610.0" prefWidth="943.0" style="-fx-border-width: 5;" />
       <Button fx:id="nextButton" layoutX="13.0" layoutY="62.0" mnemonicParsing="false" onAction="#appendState" text="Append state" />

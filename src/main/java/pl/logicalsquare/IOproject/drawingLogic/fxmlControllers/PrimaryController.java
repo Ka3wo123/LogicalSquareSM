@@ -5,13 +5,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
-import org.springframework.test.context.jdbc.Sql;
 import pl.logicalsquare.IOproject.domain.AirplaneTrafficState;
 
 import java.util.ArrayList;
@@ -59,7 +56,6 @@ public class PrimaryController {
         isGeneratable = true;
         generateButton.setDisable(false);
 
-
         level++;
 
         A.add(AirplaneTrafficState.getState(level, "A"));
@@ -67,11 +63,35 @@ public class PrimaryController {
         I.add(AirplaneTrafficState.getState(level, "I"));
         O.add(AirplaneTrafficState.getState(level, "O"));
 
-        addAirplaneState(spanTree, A.get(level - 1), 195, 45);
-        addAirplaneState(spanTree, E.get(level - 1), hXend + 2, hYend - 2);
-        addAirplaneState(spanTree, I.get(level - 1), vXend - 5, vYstart + 5);
-        addAirplaneState(spanTree, O.get(level - 1), vXend + 5, vYend + 5);
+        A.get(level - 1).setStatus(false);
+        // for E -> !a or !e
+        E.get(level - 1).setStatus(!A.get(level-1).getIsTrue() || !E.get(level - 1).getIsTrue());
+        // for O a xor o
+        O.get(level - 1).setStatus(!A.get(level-1).getIsTrue());
+        // for I a and !i
+        I.get(level - 1).setStatus(A.get(level-1).getIsTrue() && I.get(level - 1).getIsTrue());
 
+        /* when A true should be
+        true
+        false
+        true
+        false
+        when A false then
+        false
+        true
+        false
+        true
+         */
+
+        System.out.println("A " + A.get(level - 1).getIsTrue());
+        System.out.println("E " + E.get(level - 1).getIsTrue());
+        System.out.println("I " +I.get(level - 1).getIsTrue());
+        System.out.println("O " +O.get(level - 1).getIsTrue());
+
+        addAirplaneState(spanTree, A.get(level - 1), hXstart - 55, hYstart - 10);
+        addAirplaneState(spanTree, E.get(level - 1), hXend + 5, hYend - 10);
+        addAirplaneState(spanTree, I.get(level - 1), hXstart - 55, vYend + 15);
+        addAirplaneState(spanTree, O.get(level - 1), hXend, vYend + 15);
 
         // square creating
         Line edge = createEdge(hXstart, hYstart, hXend, hYend);
@@ -81,9 +101,16 @@ public class PrimaryController {
         Line edge5 = createEdge(hXstart, hYstart, hXend, hYend + 100);
         Line edge6 = createEdge(hXend, hYend, vXend, vYend);
 
+        if(A.get(level-1).getIsTrue() && I.get(level-1).getIsTrue()) {
+            vbox.getChildren().add(new Text("A&I"));
+        } else if(E.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()) {
+            vbox.getChildren().add(new Text("E&O"));
+        } else if(I.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()){
+            vbox.getChildren().add(new Text("I&O"));
+        }
+
         spanTree.getChildren().addAll(edge, edge2, edge3, edge4, edge5, edge6);
 
-        vbox.setAlignment(Pos.TOP_CENTER);
         vbox.getChildren().add(spanTree);
 
         spanTree = new Group();
@@ -117,11 +144,18 @@ public class PrimaryController {
 
 
     private void addAirplaneState(Group group, AirplaneTrafficState state, double x, double y) {
-        Text text = new Text(x - 15, y - 15, state.toString());
+        Text text = new Text(x, y, state.toString().concat("(").concat(String.valueOf(state.getIsTrue())).concat(")"));
         text.setFill(Color.BLACK);
 
         group.getChildren().add(text);
     }
+
+//    private void addStatus(Group group, AirplaneTrafficState state, double x, double y) {
+//        Text text = new Text(x - 15, y - 15, s);
+//
+//
+//        group.getChildren().add(text);
+//    }
 
     private void addInitialState(Group group) {
         Text text = new Text(385, 85, "0");
@@ -133,7 +167,7 @@ public class PrimaryController {
     public void clear() {
         generateButton.setDisable(true);
         spanTree = new Group();
-        addInitialState(spanTree);
+//        addInitialState(spanTree);
         //drawPane.getChildren().clear();
         drawPane.setContent(null);
         vbox.getChildren().clear();
