@@ -22,6 +22,7 @@ public class StageInitializer implements ApplicationListener<SpanningTreeApplica
             Scene scene = new Scene(loader.load());
 
             stage.setScene(scene);
+            stage.setTitle("State machine generator");
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

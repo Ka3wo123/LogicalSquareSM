@@ -1,10 +1,10 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -21,7 +21,10 @@ public class PrimaryController {
     @FXML
     private ScrollPane drawPane;
     @FXML
+    private Pane spanTreePane;
+    @FXML
     private Button nextButton;
+    private Group square;
     private Group spanTree;
     private boolean isGeneratable = false;
     private int level = 0;
@@ -42,19 +45,22 @@ public class PrimaryController {
     int vXend = 200;
     int vYend = 150;
 
+
     public PrimaryController() {
+        square = new Group();
         spanTree = new Group();
         A = new ArrayList<>();
         E = new ArrayList<>();
         I = new ArrayList<>();
         O = new ArrayList<>();
-        //addInitialState(spanTree);
     }
 
     @FXML
     public void appendState() {
         isGeneratable = true;
         generateButton.setDisable(false);
+        addInitialState();
+
 
         level++;
 
@@ -88,10 +94,10 @@ public class PrimaryController {
         System.out.println("I " +I.get(level - 1).getIsTrue());
         System.out.println("O " +O.get(level - 1).getIsTrue());
 
-        addAirplaneState(spanTree, A.get(level - 1), hXstart - 55, hYstart - 10);
-        addAirplaneState(spanTree, E.get(level - 1), hXend + 5, hYend - 10);
-        addAirplaneState(spanTree, I.get(level - 1), hXstart - 55, vYend + 15);
-        addAirplaneState(spanTree, O.get(level - 1), hXend, vYend + 15);
+        addAirplaneState(square, A.get(level - 1), hXstart - 55, hYstart - 10);
+        addAirplaneState(square, E.get(level - 1), hXend + 5, hYend - 10);
+        addAirplaneState(square, I.get(level - 1), hXstart - 55, vYend + 15);
+        addAirplaneState(square, O.get(level - 1), hXend, vYend + 15);
 
         // square creating
         Line edge = createEdge(hXstart, hYstart, hXend, hYend);
@@ -101,19 +107,19 @@ public class PrimaryController {
         Line edge5 = createEdge(hXstart, hYstart, hXend, hYend + 100);
         Line edge6 = createEdge(hXend, hYend, vXend, vYend);
 
-        if(A.get(level-1).getIsTrue() && I.get(level-1).getIsTrue()) {
-            vbox.getChildren().add(new Text("A&I"));
-        } else if(E.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()) {
-            vbox.getChildren().add(new Text("E&O"));
-        } else if(I.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()){
-            vbox.getChildren().add(new Text("I&O"));
-        }
+//        if(A.get(level-1).getIsTrue() && I.get(level-1).getIsTrue()) {
+//            vbox.getChildren().add(new Text("A&I"));
+//        } else if(E.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()) {
+//            vbox.getChildren().add(new Text("E&O"));
+//        } else if(I.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()){
+//            vbox.getChildren().add(new Text("I&O"));
+//        }
 
-        spanTree.getChildren().addAll(edge, edge2, edge3, edge4, edge5, edge6);
+        square.getChildren().addAll(edge, edge2, edge3, edge4, edge5, edge6);
 
-        vbox.getChildren().add(spanTree);
+        vbox.getChildren().add(square);
 
-        spanTree = new Group();
+        square = new Group();
 
 
     }
@@ -122,15 +128,16 @@ public class PrimaryController {
     @FXML
     public void renderTree() {
         if (isGeneratable) {
+            spanTreePane.getChildren().add(spanTree);
             drawSpanningTree();
-            //drawPane.getChildren().add(spanTree);
         }
     }
 
     private void drawSpanningTree() {
-
-
         generateButton.setDisable(true);
+
+
+
 
     }
 
@@ -157,16 +164,16 @@ public class PrimaryController {
 //        group.getChildren().add(text);
 //    }
 
-    private void addInitialState(Group group) {
+    private void addInitialState() {
         Text text = new Text(385, 85, "0");
         text.setFill(Color.BLACK);
 
-        group.getChildren().add(text);
+        spanTreePane.getChildren().add(text);
     }
 
     public void clear() {
         generateButton.setDisable(true);
-        spanTree = new Group();
+        square = new Group();
 //        addInitialState(spanTree);
         //drawPane.getChildren().clear();
         drawPane.setContent(null);
