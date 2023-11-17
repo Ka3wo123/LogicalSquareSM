@@ -14,7 +14,10 @@ import pl.logicalsquare.IOproject.domain.AirplaneTrafficState;
 import java.util.ArrayList;
 import java.util.List;
 
-
+// na maszynie stanowej dodac na krawedziach przejscia/triggery, dodac funkcje wyswietlania eventu po najechaniu myszki na strzalke
+// wygenerowac maszyne stanowa z tego drzewa rozpinajacego
+// wybrac lisc drzewa rozpinajacego i w zaleznosci rozpinac drzewo o nowe stany
+// w runtime dodawac stany recznie dla kwadratu i potem generowac drzewo z tych stanow i potem wybrac lisc i z tego liscia rekurencyjnie dodac stany generowac drzewo
 public class PrimaryController {
     @FXML
     public Button generateButton;
@@ -35,15 +38,20 @@ public class PrimaryController {
     @FXML
     private VBox vbox;
 
-    int hXstart = 200;
-    int hYstart = 50;
-    int hXend = 300;
-    int hYend = 50;
+    private int hXstart = 200;
+    private int hYstart = 50;
+    private int hXend = 300;
+    private int hYend = 50;
 
-    int vXstart = 200;
-    int vYstart = 50;
-    int vXend = 200;
-    int vYend = 150;
+    private int vXstart = 200;
+    private int vYstart = 50;
+    private int vXend = 200;
+    private int vYend = 150;
+
+    private int posXstart = 385;
+    private int posXend = 50;
+    private int posYstart = 85;
+    private int posYend = 200;
 
 
     public PrimaryController() {
@@ -59,8 +67,6 @@ public class PrimaryController {
     public void appendState() {
         isGeneratable = true;
         generateButton.setDisable(false);
-        addInitialState();
-
 
         level++;
 
@@ -69,30 +75,13 @@ public class PrimaryController {
         I.add(AirplaneTrafficState.getState(level, "I"));
         O.add(AirplaneTrafficState.getState(level, "O"));
 
-        A.get(level - 1).setStatus(false);
+        A.get(level - 1).setStatus(true);
         // for E -> !a or !e
-        E.get(level - 1).setStatus(!A.get(level-1).getIsTrue() || !E.get(level - 1).getIsTrue());
+        E.get(level - 1).setStatus(!A.get(level - 1).getIsTrue() || !E.get(level - 1).getIsTrue());
         // for O a xor o
-        O.get(level - 1).setStatus(!A.get(level-1).getIsTrue());
+        O.get(level - 1).setStatus(!A.get(level - 1).getIsTrue());
         // for I a and !i
-        I.get(level - 1).setStatus(A.get(level-1).getIsTrue() && I.get(level - 1).getIsTrue());
-
-        /* when A true should be
-        true
-        false
-        true
-        false
-        when A false then
-        false
-        true
-        false
-        true
-         */
-
-        System.out.println("A " + A.get(level - 1).getIsTrue());
-        System.out.println("E " + E.get(level - 1).getIsTrue());
-        System.out.println("I " +I.get(level - 1).getIsTrue());
-        System.out.println("O " +O.get(level - 1).getIsTrue());
+        I.get(level - 1).setStatus(A.get(level - 1).getIsTrue() && !I.get(level - 1).getIsTrue());
 
         addAirplaneState(square, A.get(level - 1), hXstart - 55, hYstart - 10);
         addAirplaneState(square, E.get(level - 1), hXend + 5, hYend - 10);
@@ -107,38 +96,40 @@ public class PrimaryController {
         Line edge5 = createEdge(hXstart, hYstart, hXend, hYend + 100);
         Line edge6 = createEdge(hXend, hYend, vXend, vYend);
 
-//        if(A.get(level-1).getIsTrue() && I.get(level-1).getIsTrue()) {
-//            vbox.getChildren().add(new Text("A&I"));
-//        } else if(E.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()) {
-//            vbox.getChildren().add(new Text("E&O"));
-//        } else if(I.get(level-1).getIsTrue() && O.get(level-1).getIsTrue()){
-//            vbox.getChildren().add(new Text("I&O"));
-//        }
 
         square.getChildren().addAll(edge, edge2, edge3, edge4, edge5, edge6);
 
         vbox.getChildren().add(square);
 
+        Line treeEdge1 = createEdge(posXstart, posYstart, posXend, posYend);
+        Line treeEdge2 = createEdge(posXstart, posYstart, posXend + 320, posYend);
+        Line treeEdge3 = createEdge(posXstart, posYstart, posXend + 600, posYend);
+
+        spanTree.getChildren().addAll(treeEdge1, treeEdge2, treeEdge3);
+
+        // A&I
+        addStatesForSituation(spanTree, A.get(level - 1), I.get(level - 1), posXend - 15, posYend + 15);
+
+        // E&O
+        addStatesForSituation(spanTree, E.get(level - 1), O.get(level - 1),posXend + 285, posYend + 15);
+
+        // I&O
+        addStatesForSituation(spanTree, I.get(level - 1), O.get(level - 1), posXend + 585, posYend + 15);
+
+        posYstart += 180;
+        posYend += 180;
+
         square = new Group();
-
-
     }
 
 
     @FXML
     public void renderTree() {
         if (isGeneratable) {
+            addInitialState();
             spanTreePane.getChildren().add(spanTree);
-            drawSpanningTree();
+            generateButton.setDisable(true);
         }
-    }
-
-    private void drawSpanningTree() {
-        generateButton.setDisable(true);
-
-
-
-
     }
 
     private Line createEdge(double startX, double startY, double endX, double endY) {
@@ -149,6 +140,12 @@ public class PrimaryController {
         return edge;
     }
 
+    private void addStatesForSituation(Group group, AirplaneTrafficState state1, AirplaneTrafficState state2, double x, double y) {
+        Text text = new Text(x, y, state1.toString().concat(" &\n").concat(state2.toString()));
+        text.setFill(Color.BLACK);
+
+        group.getChildren().add(text);
+    }
 
     private void addAirplaneState(Group group, AirplaneTrafficState state, double x, double y) {
         Text text = new Text(x, y, state.toString().concat("(").concat(String.valueOf(state.getIsTrue())).concat(")"));
@@ -157,19 +154,13 @@ public class PrimaryController {
         group.getChildren().add(text);
     }
 
-//    private void addStatus(Group group, AirplaneTrafficState state, double x, double y) {
-//        Text text = new Text(x - 15, y - 15, s);
-//
-//
-//        group.getChildren().add(text);
-//    }
-
     private void addInitialState() {
-        Text text = new Text(385, 85, "0");
+        Text text = new Text(385, 82, "0");
         text.setFill(Color.BLACK);
 
         spanTreePane.getChildren().add(text);
     }
+
 
     public void clear() {
         generateButton.setDisable(true);

@@ -16,10 +16,10 @@ public class LogicalSquare {
 
       Direction A&I -> I&O -> O&E
 
-      contradictory - (a xor o) , (i xor e)
+      contradictory - a xor o
       contrary - ~a | ~e
       subcontrary - i | o
-      subalternation -
+      subalternation - a & ~i
  */
 
     public void compute() {
