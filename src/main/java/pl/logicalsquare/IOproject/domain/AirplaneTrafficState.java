@@ -12,8 +12,7 @@ public enum AirplaneTrafficState {
 
     private String sentence;
     private int level;
-    private boolean isTrue;
-    AirplaneTrafficState(String relation, int level) {
+    private boolean isTrue;    AirplaneTrafficState(String relation, int level) {
         this.sentence = relation;
         this.level = level;
         this.isTrue = false;

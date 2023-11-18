@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+
+<Pane prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: #000;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.SplashScreenController">
+   <ImageView fitHeight="293.0" fitWidth="301.0" layoutX="54.0" layoutY="54.0" preserveRatio="true">
+      <Image url="@Logo.jpg" />
+   </ImageView>
+   <Label layoutX="71.0" layoutY="46.0" text="Logical square-driven generation of behavioural " textFill="WHITE" />
+   <Label layoutX="264.0" layoutY="369.0" text="Akademia Tarnowska">
+      <textFill>
+         <LinearGradient endX="0.5152671100529095" endY="0.4847328426273724" startX="0.27099242647185595" startY="1.0">
+            <stops>
+               <Stop>
+                  <color>
+                     <Color red="0.4032832384109497" green="0.3343999981880188" blue="0.7599999904632568" />
+                  </color>
+               </Stop>
+               <Stop offset="1.0">
+                  <color>
+                     <Color red="0.9441357851028442" green="1.0" blue="0.3296296298503876" />
+                  </color>
+               </Stop>
+            </stops>
+         </LinearGradient>
+      </textFill></Label>
+   <ImageView fitHeight="17.0" fitWidth="17.0" layoutX="247.0" layoutY="369.0" pickOnBounds="true" preserveRatio="true">
+      <image>
+         <Image url="@ATLogo.png" />
+      </image></ImageView>
+
+</Pane>
