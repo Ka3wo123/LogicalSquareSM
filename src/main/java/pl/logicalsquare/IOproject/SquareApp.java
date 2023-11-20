@@ -14,27 +14,28 @@ import java.io.IOException;
 public class SquareApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader splashLoader = new FXMLLoader(SquareApp.class.getResource("/fxml/splash_screen.fxml"));
-        Scene splashScene = new Scene(splashLoader.load(), Color.TRANSPARENT);
-        Stage splashStage = new Stage();
-        splashStage.setScene(splashScene);
-
-        PauseTransition pauseTransition = new PauseTransition(Duration.seconds(2));
-        pauseTransition.setOnFinished(e -> {
-            FadeTransition fadeTransition = new FadeTransition(Duration.seconds(3), splashScene.getRoot());
-            fadeTransition.setFromValue(1);
-            fadeTransition.setToValue(0);
-
-            fadeTransition.setOnFinished(event -> {
-                splashStage.close();
-                showMainPage(stage);
-            });
-            fadeTransition.play();
-        });
-
-        pauseTransition.play();
-        splashStage.setTitle("State machine generator");
-        splashStage.show();
+        showMainPage(stage);
+//        FXMLLoader splashLoader = new FXMLLoader(SquareApp.class.getResource("/fxml/splash_screen.fxml"));
+//        Scene splashScene = new Scene(splashLoader.load(), Color.TRANSPARENT);
+//        Stage splashStage = new Stage();
+//        splashStage.setScene(splashScene);
+//
+//        PauseTransition pauseTransition = new PauseTransition(Duration.seconds(2));
+//        pauseTransition.setOnFinished(e -> {
+//            FadeTransition fadeTransition = new FadeTransition(Duration.seconds(3), splashScene.getRoot());
+//            fadeTransition.setFromValue(1);
+//            fadeTransition.setToValue(0);
+//
+//            fadeTransition.setOnFinished(event -> {
+//                splashStage.close();
+//                showMainPage(stage);
+//            });
+//            fadeTransition.play();
+//        });
+//
+//        pauseTransition.play();
+//        splashStage.setTitle("State machine generator");
+//        splashStage.show();
     }
 
     private void showMainPage(Stage primaryStage) {

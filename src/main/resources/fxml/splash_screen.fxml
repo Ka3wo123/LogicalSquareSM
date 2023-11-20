@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 
-<Pane prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: #000;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.SplashScreenController">
+<Pane prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: #000;" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1">
    <ImageView fitHeight="293.0" fitWidth="301.0" layoutX="54.0" layoutY="54.0" preserveRatio="true">
       <Image url="@Logo.jpg" />
    </ImageView>

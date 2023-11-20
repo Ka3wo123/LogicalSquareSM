@@ -3,21 +3,26 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760" prefWidth="1400" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.PrimaryController">
-   <children>
-      <Button fx:id="generateButton" disable="true" layoutX="14.0" layoutY="26.0" mnemonicParsing="false" onAction="#renderTree" text="Generate" />
-      <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0" style="-fx-border-width: 5;">
-         <content>
-            <VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="554.0" prefWidth="347.0" spacing="25.0">
-               <padding>
-                  <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
-               </padding></VBox>
-         </content></ScrollPane>
-      <ScrollPane layoutX="418.0" layoutY="211.0" prefHeight="523.0" prefWidth="900.0">
-         <Pane fx:id="spanTreePane" layoutX="432.0" layoutY="130.0" prefHeight="1000.0" prefWidth="1500.0" style="-fx-border-width: 5;" />
-      </ScrollPane>
-      <Button fx:id="nextButton" layoutX="13.0" layoutY="62.0" mnemonicParsing="false" onAction="#appendState" text="Append state" />
-      <Button fx:id="clearButton" layoutX="85.0" layoutY="26.0" mnemonicParsing="false" onAction="#clear" text="Clear" />
-   </children>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760" prefWidth="1400" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.Main">
+   <Button fx:id="drawTreeButton" layoutX="418.0" layoutY="49.0" mnemonicParsing="false" onAction="#renderTree" text="Draw tree" />
+   <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0" style="-fx-border-width: 5;">
+      <VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="554.0" prefWidth="347.0" spacing="25.0">
+         <padding>
+            <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+         </padding>
+      </VBox>
+   </ScrollPane>
+   <ScrollPane layoutX="418.0" layoutY="211.0" prefHeight="523.0" prefWidth="900.0">
+      <Pane fx:id="spanTreePane" layoutX="432.0" layoutY="130.0" prefHeight="1000.0" prefWidth="1500.0" style="-fx-border-width: 5;" />
+   </ScrollPane>
+   <Button fx:id="nextButton" layoutX="418.0" layoutY="88.0" mnemonicParsing="false" onAction="#appendSquare" text="Append square" />
+   <Button fx:id="clearButton" layoutX="503.0" layoutY="49.0" mnemonicParsing="false" onAction="#clear" text="Clear" />
+   <Label layoutX="796.0" layoutY="171.0" text="Ternary tree">
+      <font>
+         <Font size="27.0" />
+      </font>
+   </Label>
+   <TextArea layoutX="25.0" layoutY="36.0" prefHeight="77.0" prefWidth="263.0" text="A is contrary to E i.e. ~A or ~E.&#10;A is contradictory to O i.e. A xor O.&#10;A is subalternated to I i.e. A and ~I." />
 </AnchorPane>
