@@ -14,8 +14,11 @@
          </padding>
       </VBox>
    </ScrollPane>
-   <ScrollPane layoutX="418.0" layoutY="211.0" prefHeight="523.0" prefWidth="900.0">
-      <Pane fx:id="spanTreePane" layoutX="432.0" layoutY="130.0" prefHeight="1000.0" prefWidth="1500.0" style="-fx-border-width: 5;" />
+   <ScrollPane layoutX="392.0" layoutY="210.0" prefHeight="523.0" prefWidth="986.0">
+      <VBox fx:id="spanTreePane" layoutX="432.0" layoutY="130.0" prefHeight="506.0" prefWidth="984.0" spacing="20" style="-fx-border-width: 5;">
+         <padding>
+            <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+         </padding></VBox>
    </ScrollPane>
    <Button fx:id="nextButton" layoutX="418.0" layoutY="88.0" mnemonicParsing="false" onAction="#appendSquare" text="Append square" />
    <Button fx:id="clearButton" layoutX="503.0" layoutY="49.0" mnemonicParsing="false" onAction="#clear" text="Clear" />

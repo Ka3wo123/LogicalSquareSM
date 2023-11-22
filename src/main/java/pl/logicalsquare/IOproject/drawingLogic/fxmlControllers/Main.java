@@ -1,14 +1,14 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Pane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -17,6 +17,8 @@ import javafx.scene.text.Text;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 // na maszynie stanowej dodac na krawedziach przejscia/triggery, dodac funkcje wyswietlania eventu po najechaniu myszki na strzalke
 // wygenerowac maszyne stanowa z tego drzewa rozpinajacego
@@ -28,7 +30,7 @@ public class Main implements Initializable {
     @FXML
     private ScrollPane drawPane;
     @FXML
-    private Pane spanTreePane;
+    private VBox spanTreePane;
     @FXML
     private Button nextButton;
     private Group spanTree;
@@ -36,10 +38,10 @@ public class Main implements Initializable {
     @FXML
     private VBox vbox;
 
-    private int posXstart = 385;
-    private int posXend = 50;
-    private int posYstart = 85;
-    private int posYend = 200;
+    private int posXstart;
+    private int posXend;
+    private int posYstart;
+    private int posYend;
 
     private TextField sentenceA;
     private TextField sentenceE;
@@ -50,6 +52,9 @@ public class Main implements Initializable {
     private String textE;
     private String textI;
     private String textO;
+
+    private Text lastClickedText;
+    private double lastMouseX, lastMouseY;
 
 
     public Main() {
@@ -67,13 +72,15 @@ public class Main implements Initializable {
     @FXML
     public void renderTree() {
 
-        addInitialState();
+//        addInitialState();
 
         drawTreeButton.setDisable(true);
 
+
         Line treeEdge1 = createEdge(posXstart, posYstart, posXend, posYend);
-        Line treeEdge2 = createEdge(posXstart, posYstart, posXend + 310, posYend);
+        Line treeEdge2 = createEdge(posXstart, posYstart, posXend + 300, posYend);
         Line treeEdge3 = createEdge(posXstart, posYstart, posXend + 600, posYend);
+
 
         spanTree.getChildren().addAll(treeEdge1, treeEdge2, treeEdge3);
 
@@ -83,25 +90,63 @@ public class Main implements Initializable {
         textE = sentenceE.getText();
         textO = sentenceO.getText();
 
-
-        // TODO potrzeba odpowiednio ustawic zeby bylo na koncach linii
         addStateToGroup(textA, textE, posXend, posYend + 20);
-        addStateToGroup(textI, textO, posXend + 100, posYend + 20);
-        addStateToGroup(textE, textO, posXend + 200, posYend + 20);
+        addStateToGroup(textI, textO, posXend + 300, posYend + 20);
+        addStateToGroup(textE, textO, posXend + 600, posYend + 20);
 
+        sentenceA.setEditable(false);
+        sentenceE.setEditable(false);
+        sentenceI.setEditable(false);
+        sentenceO.setEditable(false);
+
+        lastClickedText = null;
+
+        for (Node node : spanTree.getChildren()) {
+            AtomicBoolean isPressed = new AtomicBoolean(false);
+            if (node instanceof Text textNode) {
+                textNode.setOnMouseClicked(event -> {
+                    posXstart = (int) textNode.getX();
+                    posXend = (posXstart - 300);
+                    posYstart = (int) textNode.getY() + 25;
+
+                    if (lastClickedText != null) {
+                        lastClickedText.setFill(Color.BLACK);
+                    }
+
+                    textNode.setFill(Color.TOMATO);
+                    isPressed.set(true);
+
+                    lastClickedText = textNode;
+                });
+                textNode.setOnMouseEntered(e -> {
+                    textNode.setFill(Color.TOMATO);
+
+                });
+
+                textNode.setOnMouseExited(e -> {
+                    if (!isPressed.get() && lastClickedText == null) {
+                        textNode.setFill(Color.BLACK);
+                    }
+                });
+            }
+        }
+
+        posYend += 160;
+
+        spanTreePane.getChildren().clear();
         spanTreePane.getChildren().addAll(spanTree);
 
     }
 
 
-    private void addStateToGroup(String s1, String s2, double x, double y) {
+    private void addStateToGroup(String s1, String s2, int x, int y) {
         Text text = new Text(x, y, s1.concat(" &\n").concat(s2));
         text.setFill(Color.BLACK);
 
         spanTree.getChildren().add(text);
     }
 
-    private Line createEdge(double startX, double startY, double endX, double endY) {
+    private Line createEdge(int startX, int startY, int endX, int endY) {
         Line edge = new Line(startX, startY, endX, endY);
 
         edge.setStroke(Color.BLACK);
@@ -110,7 +155,7 @@ public class Main implements Initializable {
     }
 
     private void addInitialState() {
-        Text text = new Text(385, 82, "0");
+        Text text = new Text(500, 5, "0");
         text.setFill(Color.BLACK);
 
         spanTreePane.getChildren().add(text);
@@ -154,16 +199,32 @@ public class Main implements Initializable {
         return object;
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        createHollowSquare();
-    }
-
     private TextField createLabelTextField() {
         TextField textField = new TextField();
         textField.setPrefWidth(100);
         textField.setPrefHeight(20);
         return textField;
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        createHollowSquare();
+//        addInitialState();
+        spanTreePane.setOnScroll(this::handleScroll);
+        posXstart = 500;
+        posXend = 200;
+        posYstart = 10;
+        posYend = posYstart + 100;
+
+    }
+
+    private void handleScroll(ScrollEvent event) {
+        if (event.isControlDown()) {
+            double scaleFactor = (event.getDeltaY() > 0) ? 1.1 : 1 / 1.1;
+            spanTreePane.setScaleX(spanTreePane.getScaleX() * scaleFactor);
+            spanTreePane.setScaleY(spanTreePane.getScaleY() * scaleFactor);
+            event.consume();
+        }
     }
 
 
