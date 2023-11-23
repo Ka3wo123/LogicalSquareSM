@@ -1,34 +1,37 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Group;
-import javafx.scene.Node;
+import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 // na maszynie stanowej dodac na krawedziach przejscia/triggery, dodac funkcje wyswietlania eventu po najechaniu myszki na strzalke
 // wygenerowac maszyne stanowa z tego drzewa rozpinajacego
-// wybrac lisc drzewa rozpinajacego i w zaleznosci rozpinac drzewo o nowe stany
-// w runtime dodawac stany recznie dla kwadratu i potem generowac drzewo z tych stanow i potem wybrac lisc i z tego liscia rekurencyjnie dodac stany generowac drzewo
+
+// TODO mozliwosc dodania zmiennych opisujacych stany, dodanie zdarzen jakos, generowanie maszyny stanowej, generowanie scenariusza
 public class Main implements Initializable {
     @FXML
     public Button drawTreeButton;
     @FXML
     private ScrollPane drawPane;
+    @FXML
+    private Button generateMachineButton;
     @FXML
     private VBox spanTreePane;
     @FXML
@@ -54,11 +57,20 @@ public class Main implements Initializable {
     private String textO;
 
     private Text lastClickedText;
-    private double lastMouseX, lastMouseY;
 
 
     public Main() {
         spanTree = new Group();
+    }
+
+    @FXML
+    public void openWindowStateMachine(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/state_machine.fxml"));
+        Parent root = loader.load();
+        Stage stage = new Stage();
+        Scene scene = new Scene(root);
+        stage.setScene(scene);
+        stage.show();
     }
 
     public void appendSquare() {
@@ -75,6 +87,7 @@ public class Main implements Initializable {
 //        addInitialState();
 
         drawTreeButton.setDisable(true);
+        generateMachineButton.setDisable(false);
 
 
         Line treeEdge1 = createEdge(posXstart, posYstart, posXend, posYend);
@@ -90,7 +103,7 @@ public class Main implements Initializable {
         textE = sentenceE.getText();
         textO = sentenceO.getText();
 
-        addStateToGroup(textA, textE, posXend, posYend + 20);
+        addStateToGroup(textA, textI, posXend, posYend + 20);
         addStateToGroup(textI, textO, posXend + 300, posYend + 20);
         addStateToGroup(textE, textO, posXend + 600, posYend + 20);
 
@@ -120,6 +133,7 @@ public class Main implements Initializable {
                 });
                 textNode.setOnMouseEntered(e -> {
                     textNode.setFill(Color.TOMATO);
+                    textNode.getScene().setCursor(Cursor.HAND);
 
                 });
 
@@ -127,6 +141,7 @@ public class Main implements Initializable {
                     if (!isPressed.get() && lastClickedText == null) {
                         textNode.setFill(Color.BLACK);
                     }
+                    textNode.getScene().setCursor(Cursor.DEFAULT);
                 });
             }
         }
@@ -164,8 +179,13 @@ public class Main implements Initializable {
 
     public void clear() {
         drawTreeButton.setDisable(true);
-        drawPane.setContent(null);
+        spanTreePane.getChildren().clear();
         vbox.getChildren().clear();
+        spanTree.getChildren().clear();
+        posXstart = 500;
+        posXend = 200;
+        posYstart = 10;
+        posYend = posYstart + 100;
 
     }
 
@@ -226,8 +246,6 @@ public class Main implements Initializable {
             event.consume();
         }
     }
-
-
 }
 
 

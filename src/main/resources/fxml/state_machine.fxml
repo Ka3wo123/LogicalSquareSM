@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane prefHeight="543.0" prefWidth="856.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.StateMachineController">
+   <Label layoutX="286.0" layoutY="183.0" text="State machine"/>
+</AnchorPane>

@@ -27,5 +27,6 @@
          <Font size="27.0" />
       </font>
    </Label>
-   <TextArea layoutX="25.0" layoutY="36.0" prefHeight="77.0" prefWidth="263.0" text="A is contrary to E i.e. ~A or ~E.&#10;A is contradictory to O i.e. A xor O.&#10;A is subalternated to I i.e. A and ~I." />
+   <Label layoutX="25.0" layoutY="36.0" prefHeight="77.0" prefWidth="263.0" text="A is contrary to E i.e. ~A or ~E.&#10;A is contradictory to O i.e. A xor O.&#10;A is subalternated to I i.e. A and ~I." />
+   <Button fx:id="generateMachineButton" layoutX="418.0" layoutY="130.0" mnemonicParsing="false" text="Generate state machine" onAction="#openWindowStateMachine" disable="true"/>
 </AnchorPane>
