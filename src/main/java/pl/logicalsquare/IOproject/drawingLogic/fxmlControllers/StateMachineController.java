@@ -91,9 +91,10 @@ public class StateMachineController {
         state.setStroke(Color.BLACK);
 
         Tooltip tooltip = new Tooltip("""
-                Some variables defining state:
-                - speed = false
-                - door = true
+                To jest tylko test:
+                dane powinny być wyświetlane
+                które są w listView dla każdego stanu
+                
                 """);
         Tooltip.install(state, tooltip);
 
