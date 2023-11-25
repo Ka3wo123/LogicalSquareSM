@@ -21,7 +21,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // na maszynie stanowej dodac na krawedziach przejscia/triggery, dodac funkcje wyswietlania eventu po najechaniu myszki na strzalke
-// wygenerowac maszyne stanowa z tego drzewa rozpinajacego
 
 // TODO mozliwosc dodania zmiennych opisujacych stany, dodanie zdarzen jakos, generowanie maszyny stanowej, generowanie scenariusza
 public class Main implements Initializable {
