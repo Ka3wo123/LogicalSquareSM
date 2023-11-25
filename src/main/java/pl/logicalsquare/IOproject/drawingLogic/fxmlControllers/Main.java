@@ -5,10 +5,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
@@ -18,7 +17,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 // na maszynie stanowej dodac na krawedziach przejscia/triggery, dodac funkcje wyswietlania eventu po najechaniu myszki na strzalke
@@ -36,10 +35,20 @@ public class Main implements Initializable {
     private VBox spanTreePane;
     @FXML
     private Button nextButton;
-    private Group spanTree;
-    private boolean isGeneratable = false;
     @FXML
     private VBox vbox;
+    @FXML
+    private VBox variablesVBox;
+    @FXML
+    private Label stateNameLabel;
+    @FXML
+    private ListView<String> variablesListView;
+
+    private Group spanTree;
+    private boolean isGeneratable = false;
+    private List<String> stateList;
+    private Text lastClickedText;
+    private Map<TextField, ListView<String>> variableMap;
 
     private int posXstart;
     private int posXend;
@@ -56,20 +65,26 @@ public class Main implements Initializable {
     private String textI;
     private String textO;
 
-    private Text lastClickedText;
 
 
     public Main() {
         spanTree = new Group();
+        stateList = new ArrayList<>();
+        variableMap = new HashMap<>();
     }
 
     @FXML
     public void openWindowStateMachine(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/state_machine.fxml"));
         Parent root = loader.load();
+
+        StateMachineController smc = loader.getController();
+        smc.drawStateMachine(spanTree);
+
         Stage stage = new Stage();
         Scene scene = new Scene(root);
         stage.setScene(scene);
+        stage.setTitle("State machine");
         stage.show();
     }
 
@@ -78,13 +93,21 @@ public class Main implements Initializable {
         drawTreeButton.setDisable(false);
 
         createHollowSquare();
+
+
     }
+
+    private void addTextFieldListener(TextField textField) {
+        textField.textProperty().addListener((observable, oldValue, newValue) -> stateNameLabel.setText(newValue));
+    }
+    private void setTextFieldClickEvent(TextField textField) {
+        textField.setOnMouseClicked(event -> stateNameLabel.setText(textField.getText()));
+    }
+
 
 
     @FXML
     public void renderTree() {
-
-//        addInitialState();
 
         drawTreeButton.setDisable(true);
         generateMachineButton.setDisable(false);
@@ -103,9 +126,14 @@ public class Main implements Initializable {
         textE = sentenceE.getText();
         textO = sentenceO.getText();
 
-        addStateToGroup(textA, textI, posXend, posYend + 20);
-        addStateToGroup(textI, textO, posXend + 300, posYend + 20);
-        addStateToGroup(textE, textO, posXend + 600, posYend + 20);
+
+        String s1 = addStateToGroup(textA, textI, posXend, posYend + 20);
+        String s2 = addStateToGroup(textI, textO, posXend + 300, posYend + 20);
+        String s3 = addStateToGroup(textE, textO, posXend + 600, posYend + 20);
+
+        stateList.add(s1);
+        stateList.add(s2);
+        stateList.add(s3);
 
         sentenceA.setEditable(false);
         sentenceE.setEditable(false);
@@ -131,6 +159,7 @@ public class Main implements Initializable {
 
                     lastClickedText = textNode;
                 });
+
                 textNode.setOnMouseEntered(e -> {
                     textNode.setFill(Color.TOMATO);
                     textNode.getScene().setCursor(Cursor.HAND);
@@ -144,6 +173,7 @@ public class Main implements Initializable {
                     textNode.getScene().setCursor(Cursor.DEFAULT);
                 });
             }
+
         }
 
         posYend += 160;
@@ -154,11 +184,13 @@ public class Main implements Initializable {
     }
 
 
-    private void addStateToGroup(String s1, String s2, int x, int y) {
+    private String addStateToGroup(String s1, String s2, int x, int y) {
         Text text = new Text(x, y, s1.concat(" &\n").concat(s2));
         text.setFill(Color.BLACK);
 
         spanTree.getChildren().add(text);
+
+        return text.getText();
     }
 
     private Line createEdge(int startX, int startY, int endX, int endY) {
@@ -201,6 +233,11 @@ public class Main implements Initializable {
         sentenceI = createLabelTextField();
         sentenceO = createLabelTextField();
 
+        addTextFieldListener(sentenceA);
+        addTextFieldListener(sentenceE);
+        addTextFieldListener(sentenceI);
+        addTextFieldListener(sentenceO);
+
         sentenceA.setLayoutX(square.getX() - 100);
         sentenceA.setLayoutY(square.getY() - 30);
 
@@ -216,7 +253,74 @@ public class Main implements Initializable {
         object.getChildren().addAll(square, sentenceA, sentenceE, sentenceI, sentenceO);
         vbox.getChildren().add(object);
 
+        setTextFieldClickEvent(sentenceA);
+        setTextFieldClickEvent(sentenceE);
+        setTextFieldClickEvent(sentenceI);
+        setTextFieldClickEvent(sentenceO);
+
+
+        // NEW
+        ListView<String> listViewA = new ListView<>();
+        ListView<String> listViewE = new ListView<>();
+        ListView<String> listViewI = new ListView<>();
+        ListView<String> listViewO = new ListView<>();
+
+        // Add to the map for future reference
+        variableMap.put(sentenceA, listViewA);
+        variableMap.put(sentenceE, listViewE);
+        variableMap.put(sentenceI, listViewI);
+        variableMap.put(sentenceO, listViewO);
+        // NEW
         return object;
+    }
+
+    @FXML
+    private void addItem() {
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle(stateNameLabel.getText().concat(" variables"));
+        dialog.setHeaderText("Enter variable name and select value:");
+
+        ToggleGroup toggleGroup = new ToggleGroup();
+        RadioButton trueRadioButton = new RadioButton("true");
+        RadioButton falseRadioButton = new RadioButton("false");
+
+        trueRadioButton.setToggleGroup(toggleGroup);
+        falseRadioButton.setToggleGroup(toggleGroup);
+
+        trueRadioButton.setSelected(true);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(5);
+
+        gridPane.add(new Label("Variable:"), 0, 0);
+        gridPane.add(dialog.getEditor(), 1, 0);
+        gridPane.add(trueRadioButton, 1, 1);
+        gridPane.add(falseRadioButton, 2, 1);
+
+        dialog.getDialogPane().setContent(gridPane);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton.getButtonData() == ButtonType.OK.getButtonData()) {
+                RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
+                String itemText = dialog.getEditor().getText() + " - " + selectedRadioButton.getText();
+                variablesListView.getItems().add(itemText);
+                return itemText;
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
+
+
+    }
+
+    @FXML
+    private void removeItem() {
+        int selectedIndex = variablesListView.getSelectionModel().getSelectedIndex();
+        if (selectedIndex >= 0) {
+            variablesListView.getItems().remove(selectedIndex);
+        }
     }
 
     private TextField createLabelTextField() {
@@ -229,7 +333,6 @@ public class Main implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         createHollowSquare();
-//        addInitialState();
         spanTreePane.setOnScroll(this::handleScroll);
         posXstart = 500;
         posXend = 200;

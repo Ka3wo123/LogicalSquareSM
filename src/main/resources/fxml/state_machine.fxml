@@ -3,7 +3,28 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane prefHeight="543.0" prefWidth="856.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.StateMachineController">
-   <Label layoutX="286.0" layoutY="183.0" text="State machine"/>
+<AnchorPane prefHeight="543.0" prefWidth="856.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.StateMachineController">
+   <MenuBar>
+      <menus>
+         <Menu text="File">
+            <items>
+               <MenuItem onAction="#handleOpen" text="Open" />
+               <MenuItem onAction="#handleSave" text="Save" />
+               <MenuItem onAction="#handleExit" text="Exit" />
+            </items>
+         </Menu>
+         <Menu text="Edit">
+            <!-- Add Edit menu items here -->
+         </Menu>
+         <Menu text="Help">
+            <!-- Add Help menu items here -->
+         </Menu>
+      </menus>
+   </MenuBar>
+   <ScrollPane fx:id="scrollPane" layoutX="66.0" layoutY="128.0" prefHeight="322.0" prefWidth="652.0">
+      <content>
+         <VBox fx:id="stateMachinePane" prefHeight="319.0" prefWidth="650.0" spacing="20" />
+      </content>
+   </ScrollPane>
+
 </AnchorPane>
