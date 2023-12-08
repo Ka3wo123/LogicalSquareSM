@@ -38,5 +38,4 @@
          <ListView fx:id="variablesListView" prefHeight="506.0" prefWidth="319.0" />
       </children></VBox>
    <Label fx:id="variablesLabel" layoutX="379.0" layoutY="217.0" prefHeight="18.0" prefWidth="87.0" text="State variables:" />
-   <Label fx:id="stateNameLabel" layoutX="464.0" layoutY="217.0" prefHeight="18.0" prefWidth="252.0" />
 </AnchorPane>

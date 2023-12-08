@@ -50,6 +50,8 @@ public class Main implements Initializable {
     private Text lastClickedText;
     private Map<TextField, ListView<String>> variableMap;
 
+    private Map<String, List<String>> cornerStatesMap = new HashMap<>();
+
     private int posXstart;
     private int posXend;
     private int posYstart;
@@ -185,13 +187,22 @@ public class Main implements Initializable {
 
 
     private String addStateToGroup(String s1, String s2, int x, int y) {
-        Text text = new Text(x, y, s1.concat(" &\n").concat(s2));
+        String labelText = s1.concat(" &\n").concat(s2);
+        Text text = new Text(x, y, labelText);
         text.setFill(Color.BLACK);
+
+        Tooltip tooltip = new Tooltip("States: " + s1 + ", " + s2);
+        Tooltip.install(text, tooltip);
 
         spanTree.getChildren().add(text);
 
-        return text.getText();
+        // Dodaj stany do mapy
+        cornerStatesMap.computeIfAbsent(s1, k -> new ArrayList<>()).add(s1);
+        cornerStatesMap.computeIfAbsent(s2, k -> new ArrayList<>()).add(s2);
+
+        return labelText;
     }
+
 
     private Line createEdge(int startX, int startY, int endX, int endY) {
         Line edge = new Line(startX, startY, endX, endY);
@@ -276,10 +287,12 @@ public class Main implements Initializable {
 
     @FXML
     private void addItem() {
+        // Tworzenie okna dialogowego
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle(stateNameLabel.getText().concat(" variables"));
-        dialog.setHeaderText("Enter variable name and select value:");
+        dialog.setTitle("Dodaj stan");
+        dialog.setHeaderText("Wprowadź nazwę stanu:");
 
+        // Dodawanie pól dla RadioButton
         ToggleGroup toggleGroup = new ToggleGroup();
         RadioButton trueRadioButton = new RadioButton("true");
         RadioButton falseRadioButton = new RadioButton("false");
@@ -289,31 +302,76 @@ public class Main implements Initializable {
 
         trueRadioButton.setSelected(true);
 
+        // Dodawanie kontrolek do okna dialogowego
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
         gridPane.setVgap(5);
 
-        gridPane.add(new Label("Variable:"), 0, 0);
+        gridPane.add(new Label("Stan:"), 0, 0);
         gridPane.add(dialog.getEditor(), 1, 0);
-        gridPane.add(trueRadioButton, 1, 1);
-        gridPane.add(falseRadioButton, 2, 1);
+        gridPane.add(new Label("Wybierz róg:"), 0, 1);
+
+        // Dodaj ComboBox z wyborem rogu
+        ComboBox<String> cornerComboBox = new ComboBox<>();
+        cornerComboBox.getItems().addAll("A", "E", "I", "O");
+        cornerComboBox.setValue("A"); // Domyślnie ustawiony na rogu A
+        gridPane.add(cornerComboBox, 1, 1);
+
+        gridPane.add(trueRadioButton, 0, 2);
+        gridPane.add(falseRadioButton, 1, 2);
 
         dialog.getDialogPane().setContent(gridPane);
 
+        // Ustawienie konwertera wyniku dialogu
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton.getButtonData() == ButtonType.OK.getButtonData()) {
                 RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
-                String itemText = dialog.getEditor().getText() + " - " + selectedRadioButton.getText();
-                variablesListView.getItems().add(itemText);
+                String itemName = dialog.getEditor().getText();
+                String corner = cornerComboBox.getValue();
+                String itemText = itemName + " - " + selectedRadioButton.getText();
+                addStateItem(corner, itemText); // Dodanie do odpowiedniego ListView
                 return itemText;
             }
             return null;
         });
 
+        // Wyświetlanie okna dialogowego
         dialog.showAndWait();
-
-
     }
+
+
+    private void addStateItem(String corner, String itemText) {
+        // Uzyskaj aktualne ListView na podstawie rogu
+        TextField cornerTextField = getCornerTextField(corner);
+        ListView<String> currentListView = variableMap.get(cornerTextField);
+
+        // Dodaj element do ListView
+        currentListView.getItems().add(itemText);
+
+        // Dodaj informację do variablesListView
+        String info = itemText + " (Corner: " + corner + ")";
+        variablesListView.getItems().add(info);
+
+        // Dodaj stan do mapy
+        cornerStatesMap.computeIfAbsent(corner, k -> new ArrayList<>()).add(itemText);
+    }
+
+
+    private TextField getCornerTextField(String corner) {
+        switch (corner) {
+            case "A":
+                return sentenceA;
+            case "E":
+                return sentenceE;
+            case "I":
+                return sentenceI;
+            case "O":
+                return sentenceO;
+            default:
+                return null;
+        }
+    }
+
 
     @FXML
     private void removeItem() {
