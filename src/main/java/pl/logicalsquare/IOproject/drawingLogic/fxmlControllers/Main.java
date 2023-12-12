@@ -259,19 +259,16 @@ public class Main implements Initializable {
         setTextFieldClickEvent(sentenceI);
         setTextFieldClickEvent(sentenceO);
 
-
-        // NEW
         ListView<String> listViewA = new ListView<>();
         ListView<String> listViewE = new ListView<>();
         ListView<String> listViewI = new ListView<>();
         ListView<String> listViewO = new ListView<>();
 
-        // Add to the map for future reference
         variableMap.put(sentenceA, listViewA);
         variableMap.put(sentenceE, listViewE);
         variableMap.put(sentenceI, listViewI);
         variableMap.put(sentenceO, listViewO);
-        // NEW
+
         return object;
     }
 
