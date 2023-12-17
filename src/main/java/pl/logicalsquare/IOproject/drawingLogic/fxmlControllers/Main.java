@@ -120,9 +120,8 @@ public class Main implements Initializable {
     private void setTextFieldClickEvent(TextField textField) {
         textField.setOnMouseClicked(event -> {
             activeTextField = textField;
-            System.out.println(activeTextField.getText());
             stateNameLabel.setText(textField.getText());
-            showVariablesListView();
+            showVariablesListView(textField);
         });
     }
 
@@ -155,8 +154,6 @@ public class Main implements Initializable {
         stateList.add(s1);
         stateList.add(s2);
         stateList.add(s3);
-
-        System.out.println(listOfMaps.get(0).get(sentenceA));
 
 
         sentenceA.setEditable(false);
@@ -358,8 +355,6 @@ public class Main implements Initializable {
             if (dialogButton.getButtonData() == ButtonType.OK.getButtonData()) {
                 RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
                 String itemText = dialog.getEditor().getText() + " - " + selectedRadioButton.getText();
-//                variablesListView.getItems().add(itemText);
-//                listViewA.getItems().add(itemText);
                 ListView<String> listView = getListViewForTextField(activeTextField);
                 if (listView != null) {
                     listView.getItems().add(itemText);
@@ -381,13 +376,16 @@ public class Main implements Initializable {
         return null;
     }
 
-    private void showVariablesListView() {
-        if (activeTextField != null) {
-            ListView<String> listView = listOfMaps.get(0).get(activeTextField);
-            variablesVBox.getChildren().clear();
-            variablesVBox.getChildren().add(listView);
-//            plusButton.setDisable(false);  // Enable the plus button
-//            minusButton.setDisable(false); // Enable the minus button
+    private void showVariablesListView(TextField textField) {
+        if (textField != null) {
+            for (Map<TextField, ListView<String>> map : listOfMaps) {
+                if (map.containsKey(textField)) {
+                    ListView<String> listView = map.get(textField);
+                    variablesVBox.getChildren().clear();
+                    variablesVBox.getChildren().add(listView);
+                    break;
+                }
+            }
         }
     }
 
