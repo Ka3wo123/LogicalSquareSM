@@ -6,8 +6,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -43,6 +41,7 @@ public class StateMachineController {
     public void handleSave(ActionEvent event) {
         System.out.println("Save clicked");
     }
+
 
     public void drawStateMachine(Group spanTree) {
 

@@ -14,15 +14,14 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.StateMachineController;
 
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// na maszynie stanowej dodac na krawedziach przejscia/triggery, dodac funkcje wyswietlania eventu po najechaniu myszki na strzalke
-
-// TODO mozliwosc dodania zmiennych opisujacych stany, dodanie zdarzen jakos, generowanie maszyny stanowej, generowanie scenariusza
+// todo poprawic wyswietlanie listview, dodac mape Map<String, List<String>> - stan - lista zmiennych
 public class Main implements Initializable {
     @FXML
     public Button drawTreeButton;
@@ -40,21 +39,29 @@ public class Main implements Initializable {
     private VBox variablesVBox;
     @FXML
     private Label stateNameLabel;
-    @FXML
-    private ListView<String> variablesListView;
+//    @FXML
+//    private ListView<String> variablesListView;
 
     private Group spanTree;
     private boolean isGeneratable = false;
     private List<String> stateList;
     private Text lastClickedText;
-    private Map<TextField, ListView<String>> variableMap;
+    //    private Map<TextField, ListView<String>> variableMap;
+    private TextField activeTextField;
+    private List<Map<TextField, ListView<String>>> listOfMaps;
+    private Map<TextField, ListView<String>> cornerAMap;
+    private Map<TextField, ListView<String>> cornerEMap;
+    private Map<TextField, ListView<String>> cornerIMap;
+    private Map<TextField, ListView<String>> cornerOMap;
+    private ListView<String> listViewA;
+    private ListView<String> listViewE;
+    private ListView<String> listViewI;
+    private ListView<String> listViewO;
 
     private int posXstart;
     private int posXend;
     private int posYstart;
     private int posYend;
-
-    //test
 
     private TextField sentenceA;
     private TextField sentenceE;
@@ -67,11 +74,11 @@ public class Main implements Initializable {
     private String textO;
 
 
-
     public Main() {
         spanTree = new Group();
         stateList = new ArrayList<>();
-        variableMap = new HashMap<>();
+//        variableMap = new HashMap<>();
+        listOfMaps = new ArrayList<>();
     }
 
     @FXML
@@ -93,7 +100,15 @@ public class Main implements Initializable {
         isGeneratable = true;
         drawTreeButton.setDisable(false);
 
-        createHollowSquare();
+
+        for (Node node : spanTree.getChildren()) {
+            if (node instanceof Text text) {
+                text.setOnMouseEntered(null);
+                text.setOnMouseClicked(null);
+            }
+        }
+
+        createSquare();
 
 
     }
@@ -101,10 +116,15 @@ public class Main implements Initializable {
     private void addTextFieldListener(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> stateNameLabel.setText(newValue));
     }
-    private void setTextFieldClickEvent(TextField textField) {
-        textField.setOnMouseClicked(event -> stateNameLabel.setText(textField.getText()));
-    }
 
+    private void setTextFieldClickEvent(TextField textField) {
+        textField.setOnMouseClicked(event -> {
+            activeTextField = textField;
+            System.out.println(activeTextField.getText());
+            stateNameLabel.setText(textField.getText());
+            showVariablesListView();
+        });
+    }
 
 
     @FXML
@@ -136,6 +156,9 @@ public class Main implements Initializable {
         stateList.add(s2);
         stateList.add(s3);
 
+        System.out.println(listOfMaps.get(0).get(sentenceA));
+
+
         sentenceA.setEditable(false);
         sentenceE.setEditable(false);
         sentenceI.setEditable(false);
@@ -162,13 +185,15 @@ public class Main implements Initializable {
                 });
 
                 textNode.setOnMouseEntered(e -> {
-                    textNode.setFill(Color.TOMATO);
+                    if (!isPressed.get()) {
+                        textNode.setFill(Color.TOMATO);
+                    }
                     textNode.getScene().setCursor(Cursor.HAND);
 
                 });
 
                 textNode.setOnMouseExited(e -> {
-                    if (!isPressed.get() && lastClickedText == null) {
+                    if (!isPressed.get() || lastClickedText == null) {
                         textNode.setFill(Color.BLACK);
                     }
                     textNode.getScene().setCursor(Cursor.DEFAULT);
@@ -222,12 +247,15 @@ public class Main implements Initializable {
 
     }
 
-    private Group createHollowSquare() {
+    private Group createSquare() {
         Group object = new Group();
         Rectangle square = new Rectangle(100, 100);
 
         square.setStroke(Color.BLACK);
         square.setFill(Color.WHITE);
+
+
+
 
         sentenceA = createLabelTextField();
         sentenceE = createLabelTextField();
@@ -259,15 +287,45 @@ public class Main implements Initializable {
         setTextFieldClickEvent(sentenceI);
         setTextFieldClickEvent(sentenceO);
 
-        ListView<String> listViewA = new ListView<>();
-        ListView<String> listViewE = new ListView<>();
-        ListView<String> listViewI = new ListView<>();
-        ListView<String> listViewO = new ListView<>();
 
-        variableMap.put(sentenceA, listViewA);
-        variableMap.put(sentenceE, listViewE);
-        variableMap.put(sentenceI, listViewI);
-        variableMap.put(sentenceO, listViewO);
+        listViewA = new ListView<>();
+        listViewE = new ListView<>();
+        listViewI = new ListView<>();
+        listViewO = new ListView<>();
+
+        for (int i = 0; i < 4; i++) {
+            Map<TextField, ListView<String>> map = new HashMap<>();
+            switch (i) {
+                case 0 -> {
+                    map.put(sentenceA, listViewA);
+                    listOfMaps.add(map);
+                }
+                case 1 -> {
+                    map.put(sentenceE, listViewE);
+                    listOfMaps.add(map);
+                }
+                case 2 -> {
+                    map.put(sentenceI, listViewI);
+                    listOfMaps.add(map);
+                }
+                case 3 -> {
+                    map.put(sentenceO, listViewO);
+                    listOfMaps.add(map);
+                }
+            }
+        }
+
+
+
+//        cornerAMap.put(sentenceA, listViewA);
+//        cornerEMap.put(sentenceE, listViewE);
+//        cornerIMap.put(sentenceI, listViewI);
+//        cornerOMap.put(sentenceO, listViewO);
+
+//        listOfMaps.add(cornerAMap);
+//        listOfMaps.add(cornerEMap);
+//        listOfMaps.add(cornerIMap);
+//        listOfMaps.add(cornerOMap);
 
         return object;
     }
@@ -275,7 +333,7 @@ public class Main implements Initializable {
     @FXML
     private void addItem() {
         TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle(stateNameLabel.getText().concat(" variables"));
+        dialog.setTitle(stateNameLabel.getText() + " variables");
         dialog.setHeaderText("Enter variable name and select value:");
 
         ToggleGroup toggleGroup = new ToggleGroup();
@@ -284,8 +342,6 @@ public class Main implements Initializable {
 
         trueRadioButton.setToggleGroup(toggleGroup);
         falseRadioButton.setToggleGroup(toggleGroup);
-
-        trueRadioButton.setSelected(true);
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -302,24 +358,46 @@ public class Main implements Initializable {
             if (dialogButton.getButtonData() == ButtonType.OK.getButtonData()) {
                 RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
                 String itemText = dialog.getEditor().getText() + " - " + selectedRadioButton.getText();
-                variablesListView.getItems().add(itemText);
+//                variablesListView.getItems().add(itemText);
+//                listViewA.getItems().add(itemText);
+                ListView<String> listView = getListViewForTextField(activeTextField);
+                if (listView != null) {
+                    listView.getItems().add(itemText);
+                }
                 return itemText;
             }
             return null;
         });
 
         dialog.showAndWait();
-
-
     }
 
-    @FXML
-    private void removeItem() {
-        int selectedIndex = variablesListView.getSelectionModel().getSelectedIndex();
-        if (selectedIndex >= 0) {
-            variablesListView.getItems().remove(selectedIndex);
+    private ListView<String> getListViewForTextField(TextField textField) {
+        for (Map<TextField, ListView<String>> map : listOfMaps) {
+            if (map.containsKey(textField)) {
+                return map.get(textField);
+            }
+        }
+        return null;
+    }
+
+    private void showVariablesListView() {
+        if (activeTextField != null) {
+            ListView<String> listView = listOfMaps.get(0).get(activeTextField);
+            variablesVBox.getChildren().clear();
+            variablesVBox.getChildren().add(listView);
+//            plusButton.setDisable(false);  // Enable the plus button
+//            minusButton.setDisable(false); // Enable the minus button
         }
     }
+
+//    @FXML
+//    private void removeItem() {
+//        int selectedIndex = variablesListView.getSelectionModel().getSelectedIndex();
+//        if (selectedIndex >= 0) {
+//            variablesListView.getItems().remove(selectedIndex);
+//        }
+//    }
 
     private TextField createLabelTextField() {
         TextField textField = new TextField();
@@ -330,7 +408,7 @@ public class Main implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        createHollowSquare();
+        createSquare();
         spanTreePane.setOnScroll(this::handleScroll);
         posXstart = 500;
         posXend = 200;
@@ -348,5 +426,3 @@ public class Main implements Initializable {
         }
     }
 }
-
-
