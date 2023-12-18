@@ -39,20 +39,13 @@ public class Main implements Initializable {
     private VBox variablesVBox;
     @FXML
     private Label stateNameLabel;
-//    @FXML
-//    private ListView<String> variablesListView;
 
     private Group spanTree;
     private boolean isGeneratable = false;
     private List<String> stateList;
     private Text lastClickedText;
-    //    private Map<TextField, ListView<String>> variableMap;
     private TextField activeTextField;
     private List<Map<TextField, ListView<String>>> listOfMaps;
-    private Map<TextField, ListView<String>> cornerAMap;
-    private Map<TextField, ListView<String>> cornerEMap;
-    private Map<TextField, ListView<String>> cornerIMap;
-    private Map<TextField, ListView<String>> cornerOMap;
     private ListView<String> listViewA;
     private ListView<String> listViewE;
     private ListView<String> listViewI;
@@ -77,7 +70,6 @@ public class Main implements Initializable {
     public Main() {
         spanTree = new Group();
         stateList = new ArrayList<>();
-//        variableMap = new HashMap<>();
         listOfMaps = new ArrayList<>();
     }
 
@@ -87,7 +79,8 @@ public class Main implements Initializable {
         Parent root = loader.load();
 
         StateMachineController smc = loader.getController();
-        smc.drawStateMachine(spanTree);
+        smc.setListOfMap(listOfMaps);
+        smc.drawStateMachine(spanTree, listOfMaps);
 
         Stage stage = new Stage();
         Scene scene = new Scene(root);
@@ -363,6 +356,7 @@ public class Main implements Initializable {
             }
             return null;
         });
+
 
         dialog.showAndWait();
     }
