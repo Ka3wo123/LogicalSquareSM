@@ -1,5 +1,8 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
+import com.mxgraph.view.mxGraph;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Group;
@@ -8,6 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -35,7 +39,6 @@ public class StateMachineController {
     private List<Map<TextField, ListView<String>>> listOfMap;
     public StateMachineController() {
         stateMachine = new Group();
-
     }
 
     public void handleOpen(ActionEvent event) {
@@ -78,8 +81,8 @@ public class StateMachineController {
 //            }
 //        }
 //    }
-
-
+//
+//
 //    private Rectangle createState(double x, double y, String label) {
 //        StackPane stackPane = new StackPane();
 //
@@ -116,33 +119,7 @@ public class StateMachineController {
 //        return state;
 //    }
 
-    public void drawStateMachine(Group spanTree, List<Map<TextField, ListView<String>>> listOfMap) {
-        Circle initialState = new Circle(10);
-        initialState.setFill(Color.BLACK);
-        initialState.setCenterX(x);
-        initialState.setCenterY(y);
-
-        stateMachinePane.getChildren().add(initialState);
-
-        int stateCount = 0;
-
-        for (Node node : spanTree.getChildren()) {
-            if (stateCount == 3) {
-                stateCount = 0;
-            }
-            if (node instanceof Text text) {
-                String textToSet = text.getText();
-                ListView<String> listView = getListViewForTextField(listOfMap, textToSet);
-                if (stateCount % 3 == 0) {
-                    createState(x, y, textToSet, listView);
-                } else {
-                    createState(x, y + 200, textToSet, listView);
-                }
-                stateCount++;
-            }
-        }
-    }
-
+//
     private ListView<String> getListViewForTextField(List<Map<TextField, ListView<String>>> listOfMaps, String textFieldText) {
         for (Map<TextField, ListView<String>> map : listOfMaps) {
             for (TextField textField : map.keySet()) {
@@ -152,6 +129,77 @@ public class StateMachineController {
             }
         }
         return null;
+    }
+
+    public void drawStateMachine(mxGraph graph, List<Map<TextField, ListView<String>>> listOfMap) {
+        Object parent = graph.getDefaultParent();
+
+        for (Map<TextField, ListView<String>> map : listOfMap) {
+            System.out.println(map.entrySet().iterator().next().getKey().getText());
+        }
+
+        // Add initial state (assuming it's the first node in the graph)
+        Circle initialState = new Circle(10);
+        initialState.setFill(Color.BLACK);
+        initialState.setCenterX(x);
+        initialState.setCenterY(y);
+
+        stateMachinePane.getChildren().add(initialState);
+
+        int stateCount = 0;
+
+        // Iterate over the nodes in the graph
+        Object[] cells = graph.getChildCells(parent);
+        for (Object cell : cells) {
+            if (stateCount == 3) {
+                stateCount = 0;
+            }
+
+            if (cell instanceof mxCell mxCell) {
+                String textToSet = mxCell.getValue().toString();
+                ListView<String> listView = getListViewForTextField(listOfMap, textToSet);
+
+                if (stateCount % 3 == 0) {
+                    createStateFromGraph(graph, parent, mxCell, x, y, textToSet, listView);
+                } else {
+                    createStateFromGraph(graph, parent, mxCell, x, y + 200, textToSet, listView);
+                }
+
+                stateCount++;
+            }
+        }
+    }
+
+    private void createStateFromGraph(mxGraph graph, Object parent, mxCell cell, double x, double y, String label, ListView<String> listView) {
+        StackPane stackPane = new StackPane();
+
+        stackPane.setLayoutX(x);
+        stackPane.setLayoutY(y);
+
+        // Assuming the cell represents a vertex (state)
+        mxGeometry geometry = cell.getGeometry();
+        Rectangle state = new Rectangle(geometry.getWidth(), geometry.getHeight());
+        state.setX(x);
+        state.setY(y);
+        state.setFill(Color.LIGHTBLUE);
+        state.setStrokeWidth(1);
+        state.setArcHeight(20);
+        state.setArcWidth(20);
+        state.setStroke(Color.BLACK);
+
+        Tooltip tooltip = new Tooltip(getListViewItemsAsString(listView));
+        Tooltip.install(state, tooltip);
+
+        Text textNode = new Text(label);
+
+        double textX = x + (geometry.getWidth() - textNode.getBoundsInLocal().getWidth()) / 2;
+        double textY = y + (geometry.getHeight() - textNode.getBoundsInLocal().getHeight()) / 2;
+
+        textNode.setX(textX);
+        textNode.setY(textY);
+
+        stackPane.getChildren().addAll(state, textNode);
+        stateMachinePane.getChildren().add(stackPane);
     }
 
     private Rectangle createState(double x, double y, String label, ListView<String> listView) {

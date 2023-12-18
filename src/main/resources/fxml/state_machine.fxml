@@ -23,7 +23,7 @@
    </MenuBar>
    <ScrollPane fx:id="scrollPane" layoutX="66.0" layoutY="128.0" prefHeight="322.0" prefWidth="652.0">
       <content>
-         <VBox fx:id="stateMachinePane" prefHeight="319.0" prefWidth="650.0" spacing="20" />
+         <VBox fx:id="stateMachinePane" prefHeight="319.0" prefWidth="650.0"  />
       </content>
    </ScrollPane>
 

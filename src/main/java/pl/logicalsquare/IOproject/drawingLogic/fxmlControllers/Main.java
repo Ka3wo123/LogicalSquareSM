@@ -1,5 +1,7 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.view.mxGraph;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -80,7 +82,7 @@ public class Main implements Initializable {
 
         StateMachineController smc = loader.getController();
         smc.setListOfMap(listOfMaps);
-        smc.drawStateMachine(spanTree, listOfMaps);
+        smc.drawStateMachine(createMxGraph(), listOfMaps);
 
         Stage stage = new Stage();
         Scene scene = new Scene(root);
@@ -88,6 +90,58 @@ public class Main implements Initializable {
         stage.setTitle("State machine");
         stage.show();
     }
+
+    private mxGraph createMxGraph() {
+        mxGraph graph = new mxGraph();
+        Object parent = graph.getDefaultParent();
+
+        graph.getModel().beginUpdate();
+
+        try {
+            System.out.println(listOfMaps.size());
+
+            int numMaps = listOfMaps.size();
+
+            for (int i = 0; i < numMaps; i += 4) {
+                Map<TextField, ListView<String>> mapA = listOfMaps.get(i);
+                Map<TextField, ListView<String>> mapE = listOfMaps.get(i + 1);
+                Map<TextField, ListView<String>> mapI = listOfMaps.get(i + 2);
+                Map<TextField, ListView<String>> mapO = listOfMaps.get(i + 3);
+
+                TextField textFieldA = mapA.entrySet().iterator().next().getKey();
+                TextField textFieldE = mapE.entrySet().iterator().next().getKey();
+                TextField textFieldI = mapI.entrySet().iterator().next().getKey();
+                TextField textFieldO = mapO.entrySet().iterator().next().getKey();
+
+                String stateA = textFieldA.getText();
+                String stateE = textFieldE.getText();
+                String stateI = textFieldI.getText();
+                String stateO = textFieldO.getText();
+
+                // Create three states for each square
+                Object state1 = graph.insertVertex(parent, null, stateA + " & " + stateI, 20 + i, 20, 80, 30);
+                Object state2 = graph.insertVertex(parent, null, stateI + " & " + stateO, 150 + i, 150, 80, 30);
+                Object state3 = graph.insertVertex(parent, null, stateO + " & " + stateE, 300 + i, 20, 80, 30);
+
+                // Add transitions if needed
+                 graph.insertEdge(parent, null, "Transition A", state1, state2);
+                 graph.insertEdge(parent, null, "Transition B", state2, state3);
+                 graph.insertEdge(parent, null, "Transition C", state3, state1);
+            }
+        } finally {
+            graph.getModel().endUpdate();
+        }
+
+        // Customize the appearance of states and transitions
+        graph.setCellStyles(mxConstants.STYLE_ROUNDED, "true", new Object[]{graph.getDefaultParent()});
+        graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "#000000", new Object[]{graph.getDefaultParent()});
+        graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#FFFFFF", new Object[]{graph.getDefaultParent()});
+
+        return graph;
+    }
+
+
+
 
     public void appendSquare() {
         isGeneratable = true;
