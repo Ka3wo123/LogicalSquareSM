@@ -16,7 +16,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.StateMachineController;
 
 import java.io.IOException;
 import java.net.URL;
@@ -81,7 +80,8 @@ public class Main implements Initializable {
         Parent root = loader.load();
 
         StateMachineController smc = loader.getController();
-        smc.setListOfMap(listOfMaps);
+//        smc.setListOfMap(listOfMaps);
+        System.out.println("Lista map w main" + listOfMaps.size());
         smc.drawStateMachine(createMxGraph(), listOfMaps);
 
         Stage stage = new Stage();
@@ -98,8 +98,6 @@ public class Main implements Initializable {
         graph.getModel().beginUpdate();
 
         try {
-            System.out.println(listOfMaps.size());
-
             int numMaps = listOfMaps.size();
 
             for (int i = 0; i < numMaps; i += 4) {
@@ -147,7 +145,6 @@ public class Main implements Initializable {
         isGeneratable = true;
         drawTreeButton.setDisable(false);
 
-
         for (Node node : spanTree.getChildren()) {
             if (node instanceof Text text) {
                 text.setOnMouseEntered(null);
@@ -156,8 +153,6 @@ public class Main implements Initializable {
         }
 
         createSquare();
-
-
     }
 
     private void addTextFieldListener(TextField textField) {
@@ -284,6 +279,7 @@ public class Main implements Initializable {
         spanTreePane.getChildren().clear();
         vbox.getChildren().clear();
         spanTree.getChildren().clear();
+        listOfMaps.clear();
         posXstart = 500;
         posXend = 200;
         posYstart = 10;
@@ -297,9 +293,6 @@ public class Main implements Initializable {
 
         square.setStroke(Color.BLACK);
         square.setFill(Color.WHITE);
-
-
-
 
         sentenceA = createLabelTextField();
         sentenceE = createLabelTextField();
