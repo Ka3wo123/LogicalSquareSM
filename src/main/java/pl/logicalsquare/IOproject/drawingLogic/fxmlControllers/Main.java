@@ -67,11 +67,14 @@ public class Main implements Initializable {
     private String textI;
     private String textO;
 
+    private List<String> expansionStates;
+
 
     public Main() {
         spanTree = new Group();
         stateList = new ArrayList<>();
         listOfMaps = new ArrayList<>();
+        expansionStates = new ArrayList<>();
     }
 
     @FXML
@@ -80,7 +83,7 @@ public class Main implements Initializable {
         Parent root = loader.load();
 
         StateMachineController smc = loader.getController();
-        smc.drawStateMachine(createMxGraph(), listOfMaps, stateList);
+        smc.drawStateMachine(createMxGraph(), listOfMaps, stateList, expansionStates);
 
         Stage stage = new Stage();
         stage.setMaximized(true);
@@ -115,9 +118,9 @@ public class Main implements Initializable {
                 String stateI = textFieldI.getText();
                 String stateO = textFieldO.getText();
 
-                Object state1 = graph.insertVertex(parent, null, stateA + " &\n " + stateI, 20 + i, 20, 80, 30);
-                Object state2 = graph.insertVertex(parent, null, stateI + " &\n " + stateO, 150 + i, 150, 80, 30);
-                Object state3 = graph.insertVertex(parent, null, stateO + " &\n " + stateE, 300 + i, 20, 80, 30);
+                Object state1 = graph.insertVertex(parent, null, stateA + " &\n" + stateI, 20 + i, 20, 100, 60);
+                Object state2 = graph.insertVertex(parent, null, stateI + " &\n" + stateO, 150 + i, 150, 100, 60);
+                Object state3 = graph.insertVertex(parent, null, stateE + " &\n" + stateO, 300 + i, 20, 100, 60);
 
             }
         } finally {
@@ -212,6 +215,7 @@ public class Main implements Initializable {
                     isPressed.set(true);
 
                     lastClickedText = textNode;
+                    expansionStates.add(((Text) node).getText());
                 });
 
                 textNode.setOnMouseEntered(e -> {
@@ -272,6 +276,7 @@ public class Main implements Initializable {
         spanTree.getChildren().clear();
         listOfMaps.clear();
         stateList.clear();
+        expansionStates.clear();
         posXstart = 500;
         posXend = 200;
         posYstart = 10;

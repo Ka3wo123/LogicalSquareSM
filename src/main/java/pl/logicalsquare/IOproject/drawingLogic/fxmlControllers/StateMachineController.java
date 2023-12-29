@@ -3,21 +3,26 @@ package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraph;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 public class StateMachineController {
 
@@ -28,17 +33,14 @@ public class StateMachineController {
     private Group stateMachine;
     private double x = 100;
     private double y = 100;
-    double rectangleWidth = 100;
-    double rectangleHeight = 60;
     @FXML
     private Label scenarioLabel;
     private static int levelCount = 0;
-
-    private List<Map<TextField, ListView<String>>> listOfMap;
-    private Circle sourceState;
+    private StackPane sourceState;
 
     public StateMachineController() {
         stateMachine = new Group();
+        sourceState = new StackPane();
     }
 
     public void handleOpen(ActionEvent event) {
@@ -53,24 +55,15 @@ public class StateMachineController {
         System.out.println("Save clicked");
     }
 
-    private ListView<String> getListViewForTextField(List<Map<TextField, ListView<String>>> listOfMaps, String textFieldText) {
-        for (Map<TextField, ListView<String>> map : listOfMaps) {
-            for (TextField textField : map.keySet()) {
-                if (textField.getText().equals(textFieldText)) {
-                    return map.get(textField);
-                }
-            }
-        }
-        return null;
-    }
-
-    public void drawStateMachine(mxGraph graph, List<Map<TextField, ListView<String>>> listOfMap, List<String> statesList) {
+    public void drawStateMachine(mxGraph graph, List<Map<TextField, ListView<String>>> listOfMap, List<String> statesList, List<String> expansionStates) {
         Object parent = graph.getDefaultParent();
 
         StringBuilder scenario = new StringBuilder();
 
         int statesCount = 0;
         int totalStates = statesList.size();
+
+        sourceState = null;
 
         if (totalStates > 0) {
             for (int index = 0; index < totalStates; index++) {
@@ -91,14 +84,14 @@ public class StateMachineController {
         }
 
 
+        StackPane initialStackPane = new StackPane();
         Circle initialState = new Circle(10);
         initialState.setFill(Color.BLACK);
-        initialState.setCenterX(x - stateMachinePane.getLayoutX() + 170);
-        initialState.setCenterY(y - stateMachinePane.getLayoutY() - 50);
+        initialStackPane.getChildren().add(initialState);
+        initialStackPane.setLayoutX(x + 300);
+        initialStackPane.setLayoutY(y - 80);
 
-        initialState.setOnMouseClicked(event -> handleStateClick((Circle) event.getSource()));
-
-        stateMachinePane.getChildren().add(initialState);
+        stateMachinePane.getChildren().add(initialStackPane);
 
         Object[] cells = graph.getChildCells(parent);
         for (int i = 0; i < cells.length; i++) {
@@ -123,26 +116,104 @@ public class StateMachineController {
                 createStateFromGraph(mxCell, x, y, textToSet, getListViewItemsAsString(list1).concat(getListViewItemsAsString(list2)));
             }
         }
+
+        createDashedTransition(initialStackPane, Objects.requireNonNull(findStateByLabel(statesList.get(0))));
+
+        for (int i = 0; i < expansionStates.size(); i++) {
+            String fromIndex = expansionStates.get(i);
+            String toIndex = statesList.get(3 * (i + 1));
+
+            StackPane fromState = findStateByLabel(fromIndex);
+            StackPane toState = findStateByLabel(toIndex);
+
+            if (fromState != null && toState != null) {
+                createDashedTransition(fromState, toState);
+            }
+        }
+    }
+    private StackPane findStateByLabel(String label) {
+        for (Node node : stateMachinePane.getChildren()) {
+            if (node instanceof StackPane stackPane) {
+                for (Node child : stackPane.getChildren()) {
+                    if (child instanceof Text textNode) {
+                        System.out.println(textNode.textProperty().get() + " " + label + " " + textNode.textProperty().get().equals(label));
+                        if (textNode.textProperty().get().equals(label)) {
+                            return stackPane;
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
-    private void handleStateClick(Circle state) {
+    private void createDashedTransition(StackPane fromState, StackPane toState) {
+        double fromX = fromState.getLayoutX() + fromState.getWidth() / 2;
+        double fromY = fromState.getLayoutY() + fromState.getHeight() / 2;
+        double toX = toState.getLayoutX() + toState.getWidth() / 2;
+        double toY = toState.getLayoutY() + toState.getHeight() / 2;
+
+        Line transition = new Line();
+        transition.setStartX(fromX);
+        transition.setStartY(fromY);
+        transition.setEndX(toX);
+        transition.setEndY(toY);
+
+        transition.setStroke(Color.BLACK);
+        transition.setStrokeWidth(3);
+        transition.setStrokeType(StrokeType.CENTERED);
+        transition.getStrokeDashArray().addAll(10d, 5d);
+
+        Polygon arrowhead = createArrowhead(toX, toY, fromX, fromY);
+
+        stateMachinePane.getChildren().addAll(transition, arrowhead);
+    }
+    private Polygon createArrowhead(double toX, double toY, double fromX, double fromY) {
+        Polygon arrowhead = new Polygon();
+        arrowhead.setFill(Color.BLACK);
+
+        double angle = Math.atan2(toY - fromY, toX - fromX);
+        double arrowLength = 13;
+
+        double x1 = toX - arrowLength * Math.cos(angle - Math.toRadians(30));
+        double y1 = toY - arrowLength * Math.sin(angle - Math.toRadians(30));
+        double x2 = toX - arrowLength * Math.cos(angle + Math.toRadians(30));
+        double y2 = toY - arrowLength * Math.sin(angle + Math.toRadians(30));
+
+        arrowhead.getPoints().addAll(toX, toY, x1, y1, x2, y2);
+
+        return arrowhead;
+    }
+
+    private void handleStateClick(StackPane state) {
         if (sourceState == null) {
-            // If no source state is selected, set the clicked state as the source
             sourceState = state;
         } else {
-            // If a source state is already selected, create a transition between them
-            createTransition(sourceState, state);
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Transition Name");
+            dialog.setHeaderText(null);
+            dialog.setContentText("Enter the name for the transition:");
 
-            // Reset the source state to null for the next interaction
+            Optional<String> result = dialog.showAndWait();
+            result.ifPresent(transitionName -> createTransition(sourceState, state, transitionName));
+
+
             sourceState = null;
         }
     }
 
-    private Object createStateFromGraph(mxCell cell, double x, double y, String label, String listView) {
+    private void createStateFromGraph(mxCell cell, double x, double y, String label, String listView) {
         StackPane stackPane = new StackPane();
+        double relativeX;
+        double relativeY;
 
-        double relativeX = x - stateMachinePane.getLayoutX();
-        double relativeY = y - stateMachinePane.getLayoutY();
+        if (levelCount % 3 == 1) {
+            relativeX = x - stateMachinePane.getLayoutX();
+            relativeY = y - stateMachinePane.getLayoutY() + 80;
+        } else {
+            relativeX = x - stateMachinePane.getLayoutX();
+            relativeY = y - stateMachinePane.getLayoutY();
+        }
 
         stackPane.setLayoutX(relativeX);
         stackPane.setLayoutY(relativeY);
@@ -157,9 +228,20 @@ public class StateMachineController {
         state.setArcWidth(20);
         state.setStroke(Color.BLACK);
 
+        stackPane.setOnMouseClicked(event -> handleStateClick((StackPane) event.getSource()));
+        stackPane.setOnMouseEntered(event -> {
+            state.setStroke(Color.GREEN);
+            state.getScene().setCursor(Cursor.HAND);
+
+        });
+        stackPane.setOnMouseExited(event -> {
+            state.setStroke(Color.BLACK);
+            state.getScene().setCursor(Cursor.DEFAULT);
+        });
+
         Tooltip tooltip = new Tooltip(listView);
         tooltip.setShowDelay(Duration.millis(1));
-        tooltip.setHideDelay(Duration.seconds(5));
+        tooltip.setHideDelay(Duration.millis(5));
         Tooltip.install(stackPane, tooltip);
 
         Text textNode = new Text(label);
@@ -178,11 +260,10 @@ public class StateMachineController {
         levelCount++;
 
         if (levelCount % 3 == 0) {
-            this.y += geometry.getHeight() + 100;
+            this.y += geometry.getHeight() + 250;
             this.x = 100;
         }
 
-        return stackPane;
     }
 
     private String getListViewItemsAsString(ListView<String> listView) {
@@ -197,15 +278,34 @@ public class StateMachineController {
         }
     }
 
-    private Line createTransition(Circle fromState, Circle toState) {
+    private void createTransition(StackPane fromState, StackPane toState, String transitionName) {
+        if (fromState == toState) {
+            return;
+        }
+
         Line transition = new Line();
-        transition.setStartX(fromState.getCenterX() + fromState.getRadius());
-        transition.setStartY(fromState.getCenterY());
-        transition.setEndX(toState.getCenterX() - fromState.getRadius());
-        transition.setEndY(toState.getCenterY());
+
+        double fromX = fromState.getLayoutX() + fromState.getWidth() / 2;
+        double fromY = fromState.getLayoutY() + fromState.getHeight() / 2;
+        double toX = toState.getLayoutX() + toState.getWidth() / 2;
+        double toY = toState.getLayoutY() + toState.getHeight() / 2;
+
+        transition.setStartX(fromX);
+        transition.setStartY(fromY);
+        transition.setEndX(toX);
+        transition.setEndY(toY);
 
         transition.setStroke(Color.BLACK);
+        transition.setStrokeWidth(3);
 
-        return transition;
+        Polygon arrowhead = createArrowhead(toX, toY, fromX, fromY);
+
+        double labelX = (fromX + toX) / 2;
+        double labelY = (fromY + toY) / 2 - 5;
+
+        Text transitionLabel = new Text(labelX, labelY, transitionName);
+        transitionLabel.setFill(Color.RED);
+
+        stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
     }
 }
