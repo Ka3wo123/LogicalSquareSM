@@ -80,11 +80,10 @@ public class Main implements Initializable {
         Parent root = loader.load();
 
         StateMachineController smc = loader.getController();
-//        smc.setListOfMap(listOfMaps);
-        System.out.println("Lista map w main" + listOfMaps.size());
-        smc.drawStateMachine(createMxGraph(), listOfMaps);
+        smc.drawStateMachine(createMxGraph(), listOfMaps, stateList);
 
         Stage stage = new Stage();
+        stage.setMaximized(true);
         Scene scene = new Scene(root);
         stage.setScene(scene);
         stage.setTitle("State machine");
@@ -116,29 +115,21 @@ public class Main implements Initializable {
                 String stateI = textFieldI.getText();
                 String stateO = textFieldO.getText();
 
-                // Create three states for each square
-                Object state1 = graph.insertVertex(parent, null, stateA + " & " + stateI, 20 + i, 20, 80, 30);
-                Object state2 = graph.insertVertex(parent, null, stateI + " & " + stateO, 150 + i, 150, 80, 30);
-                Object state3 = graph.insertVertex(parent, null, stateO + " & " + stateE, 300 + i, 20, 80, 30);
+                Object state1 = graph.insertVertex(parent, null, stateA + " &\n " + stateI, 20 + i, 20, 80, 30);
+                Object state2 = graph.insertVertex(parent, null, stateI + " &\n " + stateO, 150 + i, 150, 80, 30);
+                Object state3 = graph.insertVertex(parent, null, stateO + " &\n " + stateE, 300 + i, 20, 80, 30);
 
-                // Add transitions if needed
-                 graph.insertEdge(parent, null, "Transition A", state1, state2);
-                 graph.insertEdge(parent, null, "Transition B", state2, state3);
-                 graph.insertEdge(parent, null, "Transition C", state3, state1);
             }
         } finally {
             graph.getModel().endUpdate();
         }
 
-        // Customize the appearance of states and transitions
         graph.setCellStyles(mxConstants.STYLE_ROUNDED, "true", new Object[]{graph.getDefaultParent()});
         graph.setCellStyles(mxConstants.STYLE_STROKECOLOR, "#000000", new Object[]{graph.getDefaultParent()});
         graph.setCellStyles(mxConstants.STYLE_FILLCOLOR, "#FFFFFF", new Object[]{graph.getDefaultParent()});
 
         return graph;
     }
-
-
 
 
     public void appendSquare() {
@@ -280,6 +271,7 @@ public class Main implements Initializable {
         vbox.getChildren().clear();
         spanTree.getChildren().clear();
         listOfMaps.clear();
+        stateList.clear();
         posXstart = 500;
         posXend = 200;
         posYstart = 10;
@@ -351,19 +343,6 @@ public class Main implements Initializable {
                 }
             }
         }
-
-
-
-//        cornerAMap.put(sentenceA, listViewA);
-//        cornerEMap.put(sentenceE, listViewE);
-//        cornerIMap.put(sentenceI, listViewI);
-//        cornerOMap.put(sentenceO, listViewO);
-
-//        listOfMaps.add(cornerAMap);
-//        listOfMaps.add(cornerEMap);
-//        listOfMaps.add(cornerIMap);
-//        listOfMaps.add(cornerOMap);
-
         return object;
     }
 
@@ -429,14 +408,6 @@ public class Main implements Initializable {
             }
         }
     }
-
-//    @FXML
-//    private void removeItem() {
-//        int selectedIndex = variablesListView.getSelectionModel().getSelectedIndex();
-//        if (selectedIndex >= 0) {
-//            variablesListView.getItems().remove(selectedIndex);
-//        }
-//    }
 
     private TextField createLabelTextField() {
         TextField textField = new TextField();
