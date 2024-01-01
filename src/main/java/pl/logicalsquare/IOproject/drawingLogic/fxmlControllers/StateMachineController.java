@@ -117,7 +117,7 @@ public class StateMachineController {
             }
         }
 
-        createDashedTransition(initialStackPane, Objects.requireNonNull(findStateByLabel(statesList.get(0))));
+        createDashedTransition(initialStackPane, Objects.requireNonNull(findStateByLabel(statesList.get(0))), true);
 
         for (int i = 0; i < expansionStates.size(); i++) {
             String fromIndex = expansionStates.get(i);
@@ -127,10 +127,11 @@ public class StateMachineController {
             StackPane toState = findStateByLabel(toIndex);
 
             if (fromState != null && toState != null) {
-                createDashedTransition(fromState, toState);
+                createDashedTransition(fromState, toState, false);
             }
         }
     }
+
     private StackPane findStateByLabel(String label) {
         for (Node node : stateMachinePane.getChildren()) {
             if (node instanceof StackPane stackPane) {
@@ -147,11 +148,16 @@ public class StateMachineController {
         return null;
     }
 
-    private void createDashedTransition(StackPane fromState, StackPane toState) {
-        double fromX = fromState.getLayoutX() + fromState.getWidth() / 2;
-        double fromY = fromState.getLayoutY() + fromState.getHeight() / 2;
-        double toX = toState.getLayoutX() + toState.getWidth() / 2;
-        double toY = toState.getLayoutY() + toState.getHeight() / 2;
+    private void createDashedTransition(StackPane fromState, StackPane toState, boolean isInitial) {
+        double fromX = fromState.getLayoutX() + 50;
+        double fromY = fromState.getLayoutY() + 60;
+        double toX = toState.getLayoutX() + 50;
+        double toY = toState.getLayoutY();
+
+        if (isInitial) {
+            fromX -= 50;
+            fromY -= 60;
+        }
 
         Line transition = new Line();
         transition.setStartX(fromX);
@@ -164,23 +170,36 @@ public class StateMachineController {
         transition.setStrokeType(StrokeType.CENTERED);
         transition.getStrokeDashArray().addAll(10d, 5d);
 
-        Polygon arrowhead = createArrowhead(toX, toY, fromX, fromY);
+        Polygon arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
 
         stateMachinePane.getChildren().addAll(transition, arrowhead);
     }
-    private Polygon createArrowhead(double toX, double toY, double fromX, double fromY) {
+
+    private Polygon createArrowhead(double toX, double toY, double fromX, double fromY, boolean isSelfTransition) {
         Polygon arrowhead = new Polygon();
         arrowhead.setFill(Color.BLACK);
 
-        double angle = Math.atan2(toY - fromY, toX - fromX);
-        double arrowLength = 13;
+        if (isSelfTransition) {
+            double arrowLength = 13;
+            double angle = Math.toRadians(225);
 
-        double x1 = toX - arrowLength * Math.cos(angle - Math.toRadians(30));
-        double y1 = toY - arrowLength * Math.sin(angle - Math.toRadians(30));
-        double x2 = toX - arrowLength * Math.cos(angle + Math.toRadians(30));
-        double y2 = toY - arrowLength * Math.sin(angle + Math.toRadians(30));
+            double x1 = toX - arrowLength * Math.cos(angle);
+            double y1 = toY - arrowLength * Math.sin(angle);
+            double x2 = toX - arrowLength * Math.cos(angle + Math.PI / 2);
+            double y2 = toY - arrowLength * Math.sin(angle + Math.PI / 2);
 
-        arrowhead.getPoints().addAll(toX, toY, x1, y1, x2, y2);
+            arrowhead.getPoints().addAll(toX, toY, x1, y1, x2, y2);
+        } else {
+            double angle = Math.atan2(toY - fromY, toX - fromX);
+            double arrowLength = 13;
+
+            double x1 = toX - arrowLength * Math.cos(angle - Math.toRadians(30));
+            double y1 = toY - arrowLength * Math.sin(angle - Math.toRadians(30));
+            double x2 = toX - arrowLength * Math.cos(angle + Math.toRadians(30));
+            double y2 = toY - arrowLength * Math.sin(angle + Math.toRadians(30));
+
+            arrowhead.getPoints().addAll(toX, toY, x1, y1, x2, y2);
+        }
 
         return arrowhead;
     }
@@ -230,12 +249,12 @@ public class StateMachineController {
 
         stackPane.setOnMouseClicked(event -> handleStateClick((StackPane) event.getSource()));
         stackPane.setOnMouseEntered(event -> {
-            state.setStroke(Color.GREEN);
+            state.setFill(Color.LIGHTGREEN);
             state.getScene().setCursor(Cursor.HAND);
 
         });
         stackPane.setOnMouseExited(event -> {
-            state.setStroke(Color.BLACK);
+            state.setFill(Color.LIGHTBLUE);
             state.getScene().setCursor(Cursor.DEFAULT);
         });
 
@@ -279,33 +298,120 @@ public class StateMachineController {
     }
 
     private void createTransition(StackPane fromState, StackPane toState, String transitionName) {
+        Line transition = new Line();
+        Line helpTransition1 = new Line();
+        Line helpTransition2 = new Line();
+
         if (fromState == toState) {
-            return;
+            double fromX = fromState.getLayoutX() + fromState.getWidth() / 2;
+            double fromY = fromState.getLayoutY() + fromState.getHeight();
+
+            transition.setStartX(fromX);
+            transition.setStartY(fromY);
+            transition.setEndX(fromX);
+            transition.setEndY(fromY + 40);
+
+            helpTransition1.setStartX(fromX);
+            helpTransition1.setStartY(fromY + 40);
+            helpTransition1.setEndX(fromX - 30);
+            helpTransition1.setEndY(fromY + 40);
+
+            helpTransition2.setStartX(fromX - 30);
+            helpTransition2.setStartY(fromY + 40);
+            helpTransition2.setEndX(fromX - 30);
+            helpTransition2.setEndY(fromY + 5);
+
+            transition.setStroke(Color.BLACK);
+            transition.setStrokeWidth(3);
+            helpTransition1.setStroke(Color.BLACK);
+            helpTransition1.setStrokeWidth(3);
+            helpTransition2.setStroke(Color.BLACK);
+            helpTransition2.setStrokeWidth(3);
+
+            Polygon arrowhead = createArrowhead(fromX - 30, fromY, fromX, fromY, true);
+
+            double labelX = fromX + 5;
+            double labelY = fromY + 20;
+
+            Text transitionLabel = new Text(labelX, labelY, transitionName);
+            transitionLabel.setFill(Color.RED);
+
+            stateMachinePane.getChildren().addAll(transition, helpTransition2, helpTransition1, arrowhead, transitionLabel);
+
+        } else {
+            double fromX;
+            double fromY;
+            double toX;
+            double toY;
+            Polygon arrowhead;
+
+            // 1 to 2
+            if (fromState.getLayoutX() == 100 && toState.getLayoutX() == 400) {
+                fromX = fromState.getLayoutX() + fromState.getWidth();
+                fromY = fromState.getLayoutY() + fromState.getHeight();
+                toX = toState.getLayoutX();
+                toY = toState.getLayoutY() + toState.getHeight() / 2;
+                arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
+            }
+            // 1 to 3
+            else if (fromState.getLayoutX() == 100 && toState.getLayoutX() == 700) {
+                fromX = fromState.getLayoutX() + fromState.getWidth();
+                fromY = fromState.getLayoutY() + fromState.getHeight() / 2;
+                toX = toState.getLayoutX();
+                toY = toState.getLayoutY() + toState.getHeight() / 2;
+                arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
+            }
+            // 2 to 1
+            else if (fromState.getLayoutX() == 400 && toState.getLayoutX() == 100) {
+                fromX = fromState.getLayoutX();
+                fromY = fromState.getLayoutY();
+                toX = toState.getLayoutX() + toState.getWidth();
+                toY = toState.getLayoutY() + toState.getHeight() / 1.5;
+                arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
+            }
+            // 2 to 3
+            else if (fromState.getLayoutX() == 400 && toState.getLayoutX() == 700) {
+                fromX = fromState.getLayoutX() + fromState.getWidth();
+                fromY = fromState.getLayoutY();
+                toX = toState.getLayoutX();
+                toY = toState.getLayoutY() + toState.getHeight() / 1.5;
+                arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
+            }
+            // 3 to 1
+            else if (fromState.getLayoutX() == 700 && toState.getLayoutX() == 100) {
+                fromX = fromState.getLayoutX();
+                fromY = fromState.getLayoutY();
+                toX = toState.getLayoutX() + toState.getWidth();
+                toY = toState.getLayoutY();
+                arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
+            }
+            // 3 to 2
+            else {
+                fromX = fromState.getLayoutX();
+                fromY = fromState.getLayoutY() + fromState.getHeight();
+                toX = toState.getLayoutX() + toState.getWidth();
+                toY = toState.getLayoutY() + toState.getHeight() / 2;
+                arrowhead = createArrowhead(toX, toY, fromX, fromY, false);
+            }
+
+            transition.setStartX(fromX);
+            transition.setStartY(fromY);
+            transition.setEndX(toX);
+            transition.setEndY(toY);
+
+            transition.setStroke(Color.BLACK);
+            transition.setStrokeWidth(3);
+
+
+            double labelX = (fromX + toX) / 2;
+            double labelY = (fromY + toY) / 2 - 5;
+
+            Text transitionLabel = new Text(labelX, labelY, transitionName);
+            transitionLabel.setFill(Color.RED);
+
+            stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
         }
 
-        Line transition = new Line();
 
-        double fromX = fromState.getLayoutX() + fromState.getWidth() / 2;
-        double fromY = fromState.getLayoutY() + fromState.getHeight() / 2;
-        double toX = toState.getLayoutX() + toState.getWidth() / 2;
-        double toY = toState.getLayoutY() + toState.getHeight() / 2;
-
-        transition.setStartX(fromX);
-        transition.setStartY(fromY);
-        transition.setEndX(toX);
-        transition.setEndY(toY);
-
-        transition.setStroke(Color.BLACK);
-        transition.setStrokeWidth(3);
-
-        Polygon arrowhead = createArrowhead(toX, toY, fromX, fromY);
-
-        double labelX = (fromX + toX) / 2;
-        double labelY = (fromY + toY) / 2 - 5;
-
-        Text transitionLabel = new Text(labelX, labelY, transitionName);
-        transitionLabel.setFill(Color.RED);
-
-        stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
     }
 }
