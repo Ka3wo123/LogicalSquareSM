@@ -94,27 +94,46 @@ public class StateMachineController {
         stateMachinePane.getChildren().add(initialStackPane);
 
         Object[] cells = graph.getChildCells(parent);
+
+        int k = 0;
         for (int i = 0; i < cells.length; i++) {
             Object cell = cells[i];
 
+
+            if(i % 3 == 0 && i != 0) {
+                k++;
+            }
+
+
+
             if (cell instanceof mxCell mxCell) {
-                ListView<String> list1;
-                ListView<String> list2;
+                ListView<String> list1 = null;
+                ListView<String> list2 = null;
                 String textToSet = mxCell.getValue().toString();
 
-                if (i % 4 == 0) {
-                    list1 = listOfMap.get(i).entrySet().iterator().next().getValue();
-                    list2 = listOfMap.get(i + 2).entrySet().iterator().next().getValue();
-                } else if (i % 4 == 1) {
-                    list1 = listOfMap.get(i + 1).entrySet().iterator().next().getValue();
-                    list2 = listOfMap.get(i + 2).entrySet().iterator().next().getValue();
-                } else {
-                    list1 = listOfMap.get(i - 1).entrySet().iterator().next().getValue();
-                    list2 = listOfMap.get(i + 1).entrySet().iterator().next().getValue();
+                System.out.println("I:" + i);
+                System.out.println("K:" + k);
+
+
+                if (i % 3 == 0) {
+                    list1 = listOfMap.get(i + k).entrySet().iterator().next().getValue();
+                    list2 = listOfMap.get(i + 2 + k).entrySet().iterator().next().getValue();
+                } else if (i % 3 == 1) {
+                    list1 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
+                    list2 = listOfMap.get(i + 2 + k).entrySet().iterator().next().getValue();
+                } else if(i % 3 == 2){
+                    list1 = listOfMap.get(i - 1 + k).entrySet().iterator().next().getValue();
+                    list2 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
                 }
 
                 createStateFromGraph(mxCell, x, y, textToSet, getListViewItemsAsString(list1).concat(getListViewItemsAsString(list2)));
+
+
             }
+
+
+
+
         }
 
         createDashedTransition(initialStackPane, Objects.requireNonNull(findStateByLabel(statesList.get(0))), true);
@@ -137,7 +156,6 @@ public class StateMachineController {
             if (node instanceof StackPane stackPane) {
                 for (Node child : stackPane.getChildren()) {
                     if (child instanceof Text textNode) {
-                        System.out.println(textNode.textProperty().get() + " " + label + " " + textNode.textProperty().get().equals(label));
                         if (textNode.textProperty().get().equals(label)) {
                             return stackPane;
                         }
