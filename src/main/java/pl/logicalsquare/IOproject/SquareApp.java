@@ -42,7 +42,9 @@ public class SquareApp extends Application {
     private void showMainPage(Stage primaryStage) {
         try {
             FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/fxml/main_page.fxml"));
+            String css = this.getClass().getResource("/css/style.css").toExternalForm();
             Scene mainScene = new Scene(mainLoader.load(), javafx.scene.paint.Color.TRANSPARENT);
+            mainScene.getStylesheets().add(css);
             primaryStage.setScene(mainScene);
             primaryStage.setTitle("State machine generator");
 

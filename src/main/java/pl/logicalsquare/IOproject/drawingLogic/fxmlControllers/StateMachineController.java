@@ -6,6 +6,7 @@ import com.mxgraph.view.mxGraph;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
@@ -19,10 +20,7 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class StateMachineController {
 
@@ -37,10 +35,14 @@ public class StateMachineController {
     private Label scenarioLabel;
     private static int levelCount = 0;
     private StackPane sourceState;
+    private StackPane currentState;
+    private static int currentStateIdx = 0;
+    private List<StackPane> stateTrack;
 
     public StateMachineController() {
         stateMachine = new Group();
         sourceState = new StackPane();
+        stateTrack = new LinkedList<>();
     }
 
     public void handleOpen(ActionEvent event) {
@@ -91,6 +93,8 @@ public class StateMachineController {
         initialStackPane.setLayoutX(x + 300);
         initialStackPane.setLayoutY(y - 80);
 
+        currentState = initialStackPane;
+
         stateMachinePane.getChildren().add(initialStackPane);
 
         Object[] cells = graph.getChildCells(parent);
@@ -99,21 +103,14 @@ public class StateMachineController {
         for (int i = 0; i < cells.length; i++) {
             Object cell = cells[i];
 
-
             if(i % 3 == 0 && i != 0) {
                 k++;
             }
-
-
 
             if (cell instanceof mxCell mxCell) {
                 ListView<String> list1 = null;
                 ListView<String> list2 = null;
                 String textToSet = mxCell.getValue().toString();
-
-                System.out.println("I:" + i);
-                System.out.println("K:" + k);
-
 
                 if (i % 3 == 0) {
                     list1 = listOfMap.get(i + k).entrySet().iterator().next().getValue();
@@ -127,13 +124,7 @@ public class StateMachineController {
                 }
 
                 createStateFromGraph(mxCell, x, y, textToSet, getListViewItemsAsString(list1).concat(getListViewItemsAsString(list2)));
-
-
             }
-
-
-
-
         }
 
         createDashedTransition(initialStackPane, Objects.requireNonNull(findStateByLabel(statesList.get(0))), true);
@@ -354,6 +345,8 @@ public class StateMachineController {
             Text transitionLabel = new Text(labelX, labelY, transitionName);
             transitionLabel.setFill(Color.RED);
 
+            stateTrack.add(fromState);
+
             stateMachinePane.getChildren().addAll(transition, helpTransition2, helpTransition1, arrowhead, transitionLabel);
 
         } else {
@@ -429,6 +422,10 @@ public class StateMachineController {
 
             stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
         }
+    }
+
+    public void triggerTransition(ActionEvent event) {
+
 
 
     }
