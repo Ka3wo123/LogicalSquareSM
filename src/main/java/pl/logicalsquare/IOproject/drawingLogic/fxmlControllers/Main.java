@@ -22,6 +22,9 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Klasa kontrolera dla głównego pliku FXML. Obsługuje komponenty interfejsu graficznego oraz związane z nimi akcje.
+ */
 public class Main implements Initializable {
     @FXML
     public Button drawTreeButton;
@@ -68,14 +71,21 @@ public class Main implements Initializable {
 
     private List<String> expansionStates;
 
-
+    /**
+     * Konstruktor inicjalizujący zmienne i listy używane w kontrolerze.
+     */
     public Main() {
         spanTree = new Group();
         stateList = new ArrayList<>();
         listOfMaps = new ArrayList<>();
         expansionStates = new ArrayList<>();
     }
-
+    /**
+     * Obsługuje zdarzenie akcji otwierania okna maszyny stanowej.
+     *
+     * @param event Zdarzenie akcji wywołane przez przycisk "Otwórz maszynę stanową".
+     * @throws IOException Jeśli wystąpi błąd wejścia-wyjścia podczas ładowania pliku FXML maszyny stanowej.
+     */
     @FXML
     public void openWindowStateMachine(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/state_machine.fxml"));
@@ -91,7 +101,12 @@ public class Main implements Initializable {
         stage.setTitle("State machine");
         stage.show();
     }
-
+    /**
+     * Obsługuje zdarzenie akcji dla przycisku "Pomoc", otwierając nowe okno z informacjami pomocy.
+     *
+     * @param event Zdarzenie akcji wywołane przez przycisk "Pomoc".
+     * @throws IOException Jeśli wystąpi błąd wejścia-wyjścia podczas ładowania pliku FXML ekranu pomocy.
+     */
     @FXML
     private void handleHelp(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/help_screen.fxml"));
@@ -101,7 +116,11 @@ public class Main implements Initializable {
         stage.setTitle("Help");
         stage.show();
     }
-
+    /**
+     * Tworzy obiekt mxGraph i rysuje maszynę stanową na podstawie dostarczonych danych wejściowych.
+     *
+     * @return Obiekt mxGraph reprezentujący narysowaną maszynę stanową.
+     */
     private mxGraph createMxGraph() {
         mxGraph graph = new mxGraph();
         Object parent = graph.getDefaultParent();
@@ -143,7 +162,9 @@ public class Main implements Initializable {
         return graph;
     }
 
-
+    /**
+     * Dodaje kwadrat do interfejsu graficznego, umożliwiając rysowanie struktury drzewa.
+     */
     public void appendSquare() {
         isGeneratable = true;
         drawTreeButton.setDisable(false);
@@ -157,11 +178,19 @@ public class Main implements Initializable {
 
         createSquare();
     }
-
+    /**
+     * Dodaje słuchacza do pola tekstowego, aby aktualizować etykietę po zmianie tekstu.
+     *
+     * @param textField Pole tekstowe, do którego dodawany jest słuchacz.
+     */
     private void addTextFieldListener(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> stateNameLabel.setText(newValue));
     }
-
+    /**
+     * Ustawia zdarzenie kliknięcia dla pola tekstowego w celu zaktualizowania aktywnego pola tekstowego i pokazania widoku listy zmiennych.
+     *
+     * @param textField Pole tekstowe, do którego dodawane jest zdarzenie kliknięcia.
+     */
     private void setTextFieldClickEvent(TextField textField) {
         textField.setOnMouseClicked(event -> {
             activeTextField = textField;
@@ -170,7 +199,9 @@ public class Main implements Initializable {
         });
     }
 
-
+    /**
+     * Rysuje strukturę drzewa na interfejsie graficznym na podstawie danych wprowadzonych przez użytkownika.
+     */
     @FXML
     public void renderTree() {
 
@@ -270,6 +301,9 @@ public class Main implements Initializable {
         return edge;
     }
 
+    /**
+     * Dodaje stan początkowy do interfejsu graficznego.
+     */
     private void addInitialState() {
         Text text = new Text(500, 5, "0");
         text.setFill(Color.BLACK);
@@ -277,7 +311,9 @@ public class Main implements Initializable {
         spanTreePane.getChildren().add(text);
     }
 
-
+    /**
+     * Czyści interfejs graficzny, resetując różne komponenty i listy.
+     */
     public void clear() {
         drawTreeButton.setDisable(true);
         spanTreePane.getChildren().clear();
@@ -292,7 +328,11 @@ public class Main implements Initializable {
         posYend = posYstart + 100;
 
     }
-
+    /**
+     * Tworzy kwadrat z powiązanymi polami tekstowymi do wprowadzania danych przez użytkownika.
+     *
+     * @return Obiekt Group reprezentujący utworzony kwadrat.
+     */
     private Group createSquare() {
         Group object = new Group();
         Rectangle square = new Rectangle(100, 100);
@@ -359,7 +399,9 @@ public class Main implements Initializable {
         }
         return object;
     }
-
+    /**
+     * Dodaje element do widoku listy zmiennych na podstawie wprowadzonych przez użytkownika danych.
+     */
     @FXML
     private void addItem() {
         TextInputDialog dialog = new TextInputDialog();
@@ -413,7 +455,12 @@ public class Main implements Initializable {
 
         dialog.showAndWait();
     }
-
+    /**
+     * Pobiera widok listy zmiennych powiązany z określonym polem tekstowym.
+     *
+     * @param textField Pole tekstowe, dla którego pobierany jest widok listy.
+     * @return Widok listy powiązany z danym polem tekstowym.
+     */
     private ListView<String> getListViewForTextField(TextField textField) {
         for (Map<TextField, ListView<String>> map : listOfMaps) {
             if (map.containsKey(textField)) {
@@ -422,7 +469,11 @@ public class Main implements Initializable {
         }
         return null;
     }
-
+    /**
+     * Wyświetla widok listy zmiennych powiązany z określonym polem tekstowym.
+     *
+     * @param textField Pole tekstowe, dla którego wyświetlany jest widok listy zmiennych.
+     */
     private void showVariablesListView(TextField textField) {
         if (textField != null) {
             for (Map<TextField, ListView<String>> map : listOfMaps) {
@@ -435,7 +486,11 @@ public class Main implements Initializable {
             }
         }
     }
-
+    /**
+     * Tworzy pole tekstowe LabelTextField, specjalizowany rodzaj pola tekstowego o określonych właściwościach.
+     *
+     * @return Utworzone pole tekstowe LabelTextField.
+     */
     private TextField createLabelTextField() {
         TextField textField = new TextField();
         textField.setPrefWidth(100);
@@ -453,7 +508,11 @@ public class Main implements Initializable {
         posYend = posYstart + 100;
 
     }
-
+    /**
+     * Obsługuje zdarzenie przewijania dla przybliżania i oddalania narysowanego grafu.
+     *
+     * @param event Zdarzenie przewijania zawierające informacje o operacji przewijania.
+     */
     private void handleScroll(ScrollEvent event) {
         if (event.isControlDown()) {
             double scaleFactor = (event.getDeltaY() > 0) ? 1.1 : 1 / 1.1;

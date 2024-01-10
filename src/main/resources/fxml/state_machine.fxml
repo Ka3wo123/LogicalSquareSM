@@ -42,7 +42,5 @@
         </font>
     </Label>
    <Button layoutX="986.0" layoutY="595.0" mnemonicParsing="false" text="Trigger" onAction="#triggerTransition" />
-    <Button layoutX="986.0" layoutY="620.0" mnemonicParsing="false" text="Reset" onAction="#handleReset" />
-
 
 </AnchorPane>

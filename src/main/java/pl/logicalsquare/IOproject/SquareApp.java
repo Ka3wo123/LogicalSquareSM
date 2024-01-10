@@ -11,8 +11,16 @@ import javafx.stage.Window;
 import javafx.util.Duration;
 
 import java.io.IOException;
-
+/**
+ * Główna klasa dla aplikacji JavaFX o nazwie SquareApp.
+ */
 public class SquareApp extends Application {
+    /**
+     * Punkt wejścia dla aplikacji JavaFX. Inicjalizuje i wyświetla główną stronę.
+     *
+     * @param stage Główny etap dla aplikacji.
+     * @throws IOException Jeśli wystąpi błąd podczas ładowania głównej strony.
+     */
     @Override
     public void start(Stage stage) throws IOException {
         showMainPage(stage);
@@ -38,7 +46,11 @@ public class SquareApp extends Application {
 //        splashStage.setTitle("State machine generator");
 //        splashStage.show();
     }
-
+    /**
+     * Wyświetla główną stronę aplikacji.
+     *
+     * @param primaryStage Główny etap dla aplikacji.
+     */
     private void showMainPage(Stage primaryStage) {
         try {
             FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/fxml/main_page.fxml"));
@@ -55,7 +67,11 @@ public class SquareApp extends Application {
             e.printStackTrace();
         }
     }
-
+    /**
+     * Główny punkt wejścia dla aplikacji Java.
+     *
+     * @param args Argumenty wiersza poleceń.
+     */
     public static void main(String[] args) {
         launch();
     }
