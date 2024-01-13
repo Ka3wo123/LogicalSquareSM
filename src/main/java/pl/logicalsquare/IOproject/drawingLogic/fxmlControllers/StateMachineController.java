@@ -1,5 +1,10 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.event.ActionEvent;
+import javafx.util.Duration;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraph;
@@ -47,6 +52,7 @@ public class StateMachineController {
     private StackPane currentState;
     private static int currentStateIdx = 0;
     private List<StackPane> stateTrack;
+    private List<StackPane> clickedStatesList = new ArrayList<>();
 
     public StateMachineController() {
         stateMachine = new Group();
@@ -245,6 +251,9 @@ public class StateMachineController {
     }
 
     private void handleStateClick(StackPane state) {
+        // Dodaj kliknięty stan do listy
+        clickedStatesList.add(state);
+
         if (sourceState == null) {
             sourceState = state;
         } else {
@@ -454,10 +463,59 @@ public class StateMachineController {
             stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
         }
     }
+    private int currentTransitionIndex = 0;
 
     public void triggerTransition(ActionEvent event) {
+        // Stworzenie zbioru dla unikalnych stanów
+        Set<StackPane> uniqueClickedStatesSet = new HashSet<>();
 
+        // Iteracja po liście clickedStatesList, aby pozostawić tylko unikalne stany
+        clickedStatesList.removeIf(state -> !uniqueClickedStatesSet.add(state));
+
+        // Sprawdzenie, czy istnieją kolejne stany do animacji
+        if (currentTransitionIndex < clickedStatesList.size()) {
+            // Wyświetl kliknięte stany na konsoli (możesz dostosować wyświetlanie według potrzeb)
+            System.out.println("Clicked State: " + clickedStatesList.get(currentTransitionIndex));
+
+            // Animacja zmiany koloru
+            StackPane state = clickedStatesList.get(currentTransitionIndex);
+            Timeline timeline = new Timeline();
+
+            // Zmiana koloru na czerwony
+            KeyValue keyValueRed = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.RED);
+            KeyFrame keyFrameRed = new KeyFrame(Duration.ZERO, keyValueRed);
+
+            timeline.getKeyFrames().add(keyFrameRed);
+
+            // Przywrócenie pierwotnego koloru
+            KeyValue keyValueOriginal = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.LIGHTBLUE);
+            KeyFrame keyFrameOriginal = new KeyFrame(Duration.seconds(5), keyValueOriginal);
+
+            timeline.getKeyFrames().add(keyFrameOriginal);
+
+            // Odtwórz animację
+            timeline.play();
+
+            // Zwiększ indeks dla następnego kliknięcia
+            currentTransitionIndex++;
+        } else {
+            System.out.println("No more states to transition.");
+            // Zresetuj indeks, aby można było ponownie przejść przez listę
+            currentTransitionIndex = 0;
+        }
 
 
     }
+    public void handleReset(ActionEvent event) {
+        // Usuń strzałki
+        stateMachinePane.getChildren().removeIf(node -> node instanceof Line || node instanceof Polygon);
+
+        // Wyczyść listę stanów
+        clickedStatesList.clear();
+
+        // Zresetuj indeks dla kolejnych kliknięć
+        currentTransitionIndex = 0;
+    }
+
+
 }
