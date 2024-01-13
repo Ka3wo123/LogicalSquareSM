@@ -7,19 +7,28 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
+import javafx.scene.image.WritableImage;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
+
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class StateMachineController {
@@ -51,10 +60,32 @@ public class StateMachineController {
 
     public void handleExit(ActionEvent event) {
         System.out.println("Exit cliced");
+        Stage stage = (Stage) stateMachinePane.getScene().getWindow();
+        stage.close();
     }
 
     public void handleSave(ActionEvent event) {
         System.out.println("Save clicked");
+        saveScreenshot();
+    }
+
+    private void saveScreenshot() {
+        WritableImage snapshot = stateMachinePane.snapshot(new SnapshotParameters(), null);
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Screenshot");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
+
+        // Wybierz miejsce do zapisania pliku
+        File file = fileChooser.showSaveDialog(stateMachinePane.getScene().getWindow());
+
+        if (file != null) {
+            try {
+                ImageIO.write(SwingFXUtils.fromFXImage(snapshot, null), "png", file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void drawStateMachine(mxGraph graph, List<Map<TextField, ListView<String>>> listOfMap, List<String> statesList, List<String> expansionStates) {
