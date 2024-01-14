@@ -22,7 +22,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-// todo poprawic wyswietlanie listview, dodac mape Map<String, List<String>> - stan - lista zmiennych
 public class Main implements Initializable {
     @FXML
     public Button drawTreeButton;
@@ -360,9 +359,17 @@ public class Main implements Initializable {
         ToggleGroup toggleGroup = new ToggleGroup();
         RadioButton trueRadioButton = new RadioButton("true");
         RadioButton falseRadioButton = new RadioButton("false");
+        RadioButton gte0 = new RadioButton(">=0");
+        RadioButton lte0 = new RadioButton("<=0");
+        RadioButton e0 = new RadioButton("=0");
+        RadioButton ne0 = new RadioButton("!=0");
 
         trueRadioButton.setToggleGroup(toggleGroup);
         falseRadioButton.setToggleGroup(toggleGroup);
+        gte0.setToggleGroup(toggleGroup);
+        lte0.setToggleGroup(toggleGroup);
+        e0.setToggleGroup(toggleGroup);
+        ne0.setToggleGroup(toggleGroup);
 
         GridPane gridPane = new GridPane();
         gridPane.setHgap(10);
@@ -370,15 +377,20 @@ public class Main implements Initializable {
 
         gridPane.add(new Label("Variable:"), 0, 0);
         gridPane.add(dialog.getEditor(), 1, 0);
-        gridPane.add(trueRadioButton, 1, 1);
-        gridPane.add(falseRadioButton, 2, 1);
+        gridPane.add(new Label("Select value for variable"), 0, 1);
+        gridPane.add(trueRadioButton, 0, 2);
+        gridPane.add(falseRadioButton, 0, 3);
+        gridPane.add(gte0, 0, 4);
+        gridPane.add(lte0, 0, 5);
+        gridPane.add(e0, 0, 6);
+        gridPane.add(ne0, 0, 7);
 
         dialog.getDialogPane().setContent(gridPane);
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton.getButtonData() == ButtonType.OK.getButtonData()) {
                 RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
-                String itemText = dialog.getEditor().getText() + " - " + selectedRadioButton.getText();
+                String itemText = dialog.getEditor().getText() + " :: " + selectedRadioButton.getText();
                 ListView<String> listView = getListViewForTextField(activeTextField);
                 if (listView != null) {
                     listView.getItems().add(itemText);

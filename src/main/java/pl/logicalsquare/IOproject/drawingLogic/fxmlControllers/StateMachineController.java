@@ -4,16 +4,14 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
+import javafx.stage.Popup;
 import javafx.util.Duration;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraph;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -28,7 +26,6 @@ import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 
 import javax.imageio.ImageIO;
@@ -52,12 +49,14 @@ public class StateMachineController {
     private StackPane currentState;
     private static int currentStateIdx = 0;
     private List<StackPane> stateTrack;
-    private List<StackPane> clickedStatesList = new ArrayList<>();
+    private Map<StackPane, String> variablesMap;
 
     public StateMachineController() {
         stateMachine = new Group();
         sourceState = new StackPane();
-        stateTrack = new LinkedList<>();
+        stateTrack = new ArrayList<>();
+        variablesMap = new HashMap<>();
+
     }
 
     public void handleOpen(ActionEvent event) {
@@ -140,7 +139,7 @@ public class StateMachineController {
         for (int i = 0; i < cells.length; i++) {
             Object cell = cells[i];
 
-            if(i % 3 == 0 && i != 0) {
+            if (i % 3 == 0 && i != 0) {
                 k++;
             }
 
@@ -155,7 +154,7 @@ public class StateMachineController {
                 } else if (i % 3 == 1) {
                     list1 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
                     list2 = listOfMap.get(i + 2 + k).entrySet().iterator().next().getValue();
-                } else if(i % 3 == 2){
+                } else if (i % 3 == 2) {
                     list1 = listOfMap.get(i - 1 + k).entrySet().iterator().next().getValue();
                     list2 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
                 }
@@ -177,6 +176,12 @@ public class StateMachineController {
                 createDashedTransition(fromState, toState, false);
             }
         }
+
+        for (StackPane stackPane : variablesMap.keySet()) {
+            System.out.println(stackPane + " -> " + variablesMap.get(stackPane));
+        }
+
+
     }
 
     private StackPane findStateByLabel(String label) {
@@ -251,8 +256,7 @@ public class StateMachineController {
     }
 
     private void handleStateClick(StackPane state) {
-        // Dodaj kliknięty stan do listy
-        clickedStatesList.add(state);
+        stateTrack.add(state);
 
         if (sourceState == null) {
             sourceState = state;
@@ -307,10 +311,17 @@ public class StateMachineController {
             state.getScene().setCursor(Cursor.DEFAULT);
         });
 
-        Tooltip tooltip = new Tooltip(listView);
-        tooltip.setShowDelay(Duration.millis(1));
-        tooltip.setHideDelay(Duration.millis(5));
-        Tooltip.install(stackPane, tooltip);
+        Popup popup = new Popup();
+
+        VBox popupContent = new VBox();
+        popupContent.setStyle("-fx-background-color: #93E8EB; -fx-padding: 10px; -fx-border-color: black; -fx-border-width: 1px;");
+        popupContent.getChildren().add(new Label(listView));
+
+        popup.getContent().add(popupContent);
+
+        stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> popup.show(stateMachinePane.getScene().getWindow(), event.getScreenX() + 20, event.getScreenY()));
+
+        stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> popup.hide());
 
         Text textNode = new Text(label);
 
@@ -332,14 +343,28 @@ public class StateMachineController {
             this.x = 100;
         }
 
+
+
     }
 
     private String getListViewItemsAsString(ListView<String> listView) {
         if (listView != null) {
             StringBuilder itemsText = new StringBuilder();
             for (String item : listView.getItems()) {
-                itemsText.append("- ").append(item).append("\n");
+                String[] split = item.split("::");
+                String valueForVariable;
+                switch (split[1].trim()) {
+                    case "true" -> valueForVariable = "false";
+                    case "false" -> valueForVariable = "true";
+                    case ">=0" -> valueForVariable = "<0";
+                    case "<=0" -> valueForVariable = ">0";
+                    case "=0" -> valueForVariable = "!=0";
+                    case "!=0" -> valueForVariable = "=0";
+                    default -> valueForVariable = "";
+                }
+                itemsText.append(split[0].trim()).append(" :: ").append(valueForVariable).append("\n");
             }
+            variablesMap.put(itemsText.toString());
             return itemsText.toString();
         } else {
             return "";
@@ -385,7 +410,6 @@ public class StateMachineController {
             Text transitionLabel = new Text(labelX, labelY, transitionName);
             transitionLabel.setFill(Color.RED);
 
-            stateTrack.add(fromState);
 
             stateMachinePane.getChildren().addAll(transition, helpTransition2, helpTransition1, arrowhead, transitionLabel);
 
@@ -463,59 +487,52 @@ public class StateMachineController {
             stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
         }
     }
+
     private int currentTransitionIndex = 0;
 
     public void triggerTransition(ActionEvent event) {
-        // Stworzenie zbioru dla unikalnych stanów
         Set<StackPane> uniqueClickedStatesSet = new HashSet<>();
 
-        // Iteracja po liście clickedStatesList, aby pozostawić tylko unikalne stany
-        clickedStatesList.removeIf(state -> !uniqueClickedStatesSet.add(state));
+        stateTrack.removeIf(state -> !uniqueClickedStatesSet.add(state));
 
-        // Sprawdzenie, czy istnieją kolejne stany do animacji
-        if (currentTransitionIndex < clickedStatesList.size()) {
-            // Wyświetl kliknięte stany na konsoli (możesz dostosować wyświetlanie według potrzeb)
-            System.out.println("Clicked State: " + clickedStatesList.get(currentTransitionIndex));
+        if (currentTransitionIndex < stateTrack.size()) {
+            System.out.println("Clicked State: " + stateTrack.get(currentTransitionIndex));
 
-            // Animacja zmiany koloru
-            StackPane state = clickedStatesList.get(currentTransitionIndex);
+            StackPane state = stateTrack.get(currentTransitionIndex);
             Timeline timeline = new Timeline();
 
-            // Zmiana koloru na czerwony
             KeyValue keyValueRed = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.RED);
             KeyFrame keyFrameRed = new KeyFrame(Duration.ZERO, keyValueRed);
 
             timeline.getKeyFrames().add(keyFrameRed);
 
-            // Przywrócenie pierwotnego koloru
             KeyValue keyValueOriginal = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.LIGHTBLUE);
-            KeyFrame keyFrameOriginal = new KeyFrame(Duration.seconds(5), keyValueOriginal);
+            KeyFrame keyFrameOriginal = new KeyFrame(Duration.seconds(1), keyValueOriginal);
 
             timeline.getKeyFrames().add(keyFrameOriginal);
 
-            // Odtwórz animację
             timeline.play();
 
-            // Zwiększ indeks dla następnego kliknięcia
             currentTransitionIndex++;
         } else {
             System.out.println("No more states to transition.");
-            // Zresetuj indeks, aby można było ponownie przejść przez listę
             currentTransitionIndex = 0;
         }
 
 
     }
+
     public void handleReset(ActionEvent event) {
-        // Usuń strzałki
-        stateMachinePane.getChildren().removeIf(node -> node instanceof Line || node instanceof Polygon);
+        stateMachinePane.getChildren().removeIf(node -> {
+            if (node instanceof Line line) {
+                return line.getStrokeDashArray().isEmpty();
+            } else if (node instanceof Polygon polygon) {
+                Node nextNode = stateMachinePane.getChildren().get(stateMachinePane.getChildren().indexOf(polygon));
+                return nextNode instanceof Line && ((Line) nextNode).getStrokeDashArray().isEmpty();
+            } else return node instanceof Text;
+        });
 
-        // Wyczyść listę stanów
-        clickedStatesList.clear();
-
-        // Zresetuj indeks dla kolejnych kliknięć
+        stateTrack.clear();
         currentTransitionIndex = 0;
     }
-
-
 }
