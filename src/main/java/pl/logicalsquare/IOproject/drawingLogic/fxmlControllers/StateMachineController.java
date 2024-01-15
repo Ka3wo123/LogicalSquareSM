@@ -46,10 +46,9 @@ public class StateMachineController {
     private Label scenarioLabel;
     private static int levelCount = 0;
     private StackPane sourceState;
-    private StackPane currentState;
-    private static int currentStateIdx = 0;
     private List<StackPane> stateTrack;
-    private Map<StackPane, String> variablesMap;
+    private Map<StackPane, List<String>> variablesMap;
+    private int currentTransitionIndex = 0;
 
     public StateMachineController() {
         stateMachine = new Group();
@@ -129,8 +128,6 @@ public class StateMachineController {
         initialStackPane.setLayoutX(x + 300);
         initialStackPane.setLayoutY(y - 80);
 
-        currentState = initialStackPane;
-
         stateMachinePane.getChildren().add(initialStackPane);
 
         Object[] cells = graph.getChildCells(parent);
@@ -159,7 +156,9 @@ public class StateMachineController {
                     list2 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
                 }
 
-                createStateFromGraph(mxCell, x, y, textToSet, getListViewItemsAsString(list1).concat(getListViewItemsAsString(list2)));
+                StackPane state = createStateFromGraph(mxCell, x, y, textToSet);
+                createPopUp(state, getListViewItemsAsString(list1, list2, state));
+
             }
         }
 
@@ -197,6 +196,20 @@ public class StateMachineController {
             }
         }
         return null;
+    }
+
+    private void createPopUp(StackPane stackPane, String listView) {
+        Popup popup = new Popup();
+
+        VBox popupContent = new VBox();
+        popupContent.setStyle("-fx-background-color: #93E8EB; -fx-padding: 10px; -fx-border-color: black; -fx-border-width: 1px;");
+        popupContent.getChildren().add(new Label(listView));
+
+        popup.getContent().add(popupContent);
+
+        stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> popup.show(stateMachinePane.getScene().getWindow(), event.getScreenX() + 20, event.getScreenY()));
+
+        stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> popup.hide());
     }
 
     private void createDashedTransition(StackPane fromState, StackPane toState, boolean isInitial) {
@@ -274,7 +287,7 @@ public class StateMachineController {
         }
     }
 
-    private void createStateFromGraph(mxCell cell, double x, double y, String label, String listView) {
+    private StackPane createStateFromGraph(mxCell cell, double x, double y, String label) {
         StackPane stackPane = new StackPane();
         double relativeX;
         double relativeY;
@@ -311,17 +324,7 @@ public class StateMachineController {
             state.getScene().setCursor(Cursor.DEFAULT);
         });
 
-        Popup popup = new Popup();
 
-        VBox popupContent = new VBox();
-        popupContent.setStyle("-fx-background-color: #93E8EB; -fx-padding: 10px; -fx-border-color: black; -fx-border-width: 1px;");
-        popupContent.getChildren().add(new Label(listView));
-
-        popup.getContent().add(popupContent);
-
-        stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> popup.show(stateMachinePane.getScene().getWindow(), event.getScreenX() + 20, event.getScreenY()));
-
-        stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> popup.hide());
 
         Text textNode = new Text(label);
 
@@ -343,12 +346,14 @@ public class StateMachineController {
             this.x = 100;
         }
 
-
-
+        return stackPane;
     }
 
-    private String getListViewItemsAsString(ListView<String> listView) {
-        if (listView != null) {
+    private String getListViewItemsAsString(ListView<String> listView, ListView<String> listView2, StackPane stackPane) {
+        List<String> valuesList1 = new ArrayList<>();
+        List<String> valuesList2 = new ArrayList<>();
+
+        if (listView != null && listView2 != null) {
             StringBuilder itemsText = new StringBuilder();
             for (String item : listView.getItems()) {
                 String[] split = item.split("::");
@@ -362,9 +367,27 @@ public class StateMachineController {
                     case "!=0" -> valueForVariable = "=0";
                     default -> valueForVariable = "";
                 }
+                valuesList1.add(split[0] + " :: " + valueForVariable);
                 itemsText.append(split[0].trim()).append(" :: ").append(valueForVariable).append("\n");
             }
-            variablesMap.put(itemsText.toString());
+
+            for (String item : listView2.getItems()) {
+                String[] split = item.split("::");
+                String valueForVariable;
+                switch (split[1].trim()) {
+                    case "true" -> valueForVariable = "false";
+                    case "false" -> valueForVariable = "true";
+                    case ">=0" -> valueForVariable = "<0";
+                    case "<=0" -> valueForVariable = ">0";
+                    case "=0" -> valueForVariable = "!=0";
+                    case "!=0" -> valueForVariable = "=0";
+                    default -> valueForVariable = "";
+                }
+                valuesList2.add(split[0] + " :: " + valueForVariable);
+                itemsText.append(split[0].trim()).append(" :: ").append(valueForVariable).append("\n");
+            }
+            valuesList1.addAll(valuesList2);
+            variablesMap.put(stackPane, valuesList1);
             return itemsText.toString();
         } else {
             return "";
@@ -488,7 +511,32 @@ public class StateMachineController {
         }
     }
 
-    private int currentTransitionIndex = 0;
+
+    // todo robi dobrze tylko jeszcze trzeba poprawic zeby zmienialo tylko w jednym stanie zmienne i zeby powracalo do tych poczatkowych jak sie przechodzi do kolejnego stanu
+    private void setNewVariables(StackPane state) {
+        List<String> listString = variablesMap.get(state);
+        String valueForVariable = "";
+        StringBuilder sb = new StringBuilder();
+
+        for (String s : listString) {
+            String[] split = s.split("::");
+            System.out.println("Zmienne w liscie " + "("+split[1].trim()+")");
+            switch (split[1].trim()) {
+                case "true" -> valueForVariable = "false";
+                case "false" -> valueForVariable = "true";
+                case ">=0" -> valueForVariable = "<0>";
+                case "<=0" -> valueForVariable = ">0";
+                case "=0" -> valueForVariable = "!=0";
+                case "!=0" -> valueForVariable = "=0";
+                default -> valueForVariable = "";
+            }
+            sb.append(split[0]).append(" :: ").append(valueForVariable).append("\n");
+        }
+        createPopUp(state, sb.toString());
+
+    }
+
+
 
     public void triggerTransition(ActionEvent event) {
         Set<StackPane> uniqueClickedStatesSet = new HashSet<>();
@@ -497,6 +545,8 @@ public class StateMachineController {
 
         if (currentTransitionIndex < stateTrack.size()) {
             System.out.println("Clicked State: " + stateTrack.get(currentTransitionIndex));
+
+            setNewVariables(stateTrack.get(currentTransitionIndex));
 
             StackPane state = stateTrack.get(currentTransitionIndex);
             Timeline timeline = new Timeline();
