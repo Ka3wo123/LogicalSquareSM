@@ -58,18 +58,12 @@ public class StateMachineController {
 
     }
 
-    public void handleOpen(ActionEvent event) {
-        System.out.println("Open clicked");
-    }
-
     public void handleExit(ActionEvent event) {
-        System.out.println("Exit cliced");
         Stage stage = (Stage) stateMachinePane.getScene().getWindow();
         stage.close();
     }
 
     public void handleSave(ActionEvent event) {
-        System.out.println("Save clicked");
         saveScreenshot();
     }
 
@@ -80,7 +74,6 @@ public class StateMachineController {
         fileChooser.setTitle("Save Screenshot");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
 
-        // Wybierz miejsce do zapisania pliku
         File file = fileChooser.showSaveDialog(stateMachinePane.getScene().getWindow());
 
         if (file != null) {
@@ -175,12 +168,6 @@ public class StateMachineController {
                 createDashedTransition(fromState, toState, false);
             }
         }
-
-        for (StackPane stackPane : variablesMap.keySet()) {
-            System.out.println(stackPane + " -> " + variablesMap.get(stackPane));
-        }
-
-
     }
 
     private StackPane findStateByLabel(String label) {
@@ -511,27 +498,29 @@ public class StateMachineController {
         }
     }
 
-
-    // todo robi dobrze tylko jeszcze trzeba poprawic zeby zmienialo tylko w jednym stanie zmienne i zeby powracalo do tych poczatkowych jak sie przechodzi do kolejnego stanu
     private void setNewVariables(StackPane state) {
+        List<String> newList = new ArrayList<>();
         List<String> listString = variablesMap.get(state);
         String valueForVariable = "";
         StringBuilder sb = new StringBuilder();
 
         for (String s : listString) {
             String[] split = s.split("::");
-            System.out.println("Zmienne w liscie " + "("+split[1].trim()+")");
             switch (split[1].trim()) {
                 case "true" -> valueForVariable = "false";
                 case "false" -> valueForVariable = "true";
-                case ">=0" -> valueForVariable = "<0>";
+                case ">=0" -> valueForVariable = "<0";
                 case "<=0" -> valueForVariable = ">0";
+                case "<0" -> valueForVariable = ">=0";
+                case ">0" -> valueForVariable = "<=0";
                 case "=0" -> valueForVariable = "!=0";
                 case "!=0" -> valueForVariable = "=0";
                 default -> valueForVariable = "";
             }
+            newList.add(split[0].concat(" :: " ).concat(valueForVariable));
             sb.append(split[0]).append(" :: ").append(valueForVariable).append("\n");
         }
+        variablesMap.put(state, newList);
         createPopUp(state, sb.toString());
 
     }
@@ -545,6 +534,13 @@ public class StateMachineController {
 
         if (currentTransitionIndex < stateTrack.size()) {
             System.out.println("Clicked State: " + stateTrack.get(currentTransitionIndex));
+            System.out.println("Index: " + currentTransitionIndex);
+            if(currentTransitionIndex > 0)
+                System.out.println("prev state: " + stateTrack.get(currentTransitionIndex - 1));
+
+            if(currentTransitionIndex > 0) {
+                setNewVariables(stateTrack.get(currentTransitionIndex - 1));
+            }
 
             setNewVariables(stateTrack.get(currentTransitionIndex));
 
@@ -557,7 +553,7 @@ public class StateMachineController {
             timeline.getKeyFrames().add(keyFrameRed);
 
             KeyValue keyValueOriginal = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.LIGHTBLUE);
-            KeyFrame keyFrameOriginal = new KeyFrame(Duration.seconds(1), keyValueOriginal);
+            KeyFrame keyFrameOriginal = new KeyFrame(Duration.seconds(5), keyValueOriginal);
 
             timeline.getKeyFrames().add(keyFrameOriginal);
 
@@ -566,6 +562,7 @@ public class StateMachineController {
             currentTransitionIndex++;
         } else {
             System.out.println("No more states to transition.");
+            setNewVariables(stateTrack.get(currentTransitionIndex - 1));
             currentTransitionIndex = 0;
         }
 

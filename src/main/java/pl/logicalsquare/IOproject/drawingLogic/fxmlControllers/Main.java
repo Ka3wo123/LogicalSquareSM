@@ -92,6 +92,16 @@ public class Main implements Initializable {
         stage.show();
     }
 
+    @FXML
+    private void handleHelp(ActionEvent event) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/help_screen.fxml"));
+        Stage stage = new Stage();
+        Scene scene = new Scene(loader.load());
+        stage.setScene(scene);
+        stage.setTitle("Help");
+        stage.show();
+    }
+
     private mxGraph createMxGraph() {
         mxGraph graph = new mxGraph();
         Object parent = graph.getDefaultParent();

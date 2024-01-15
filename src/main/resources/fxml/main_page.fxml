@@ -5,44 +5,42 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760"
-            prefWidth="1506.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.Main">
-    <Button fx:id="drawTreeButton" layoutX="418.0" layoutY="49.0" mnemonicParsing="false" onAction="#renderTree"
-            text="Draw tree"/>
-    <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0"
-                style="-fx-border-width: 5;">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="760" prefWidth="1506.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.logicalsquare.IOproject.drawingLogic.fxmlControllers.Main">
+    <MenuBar>
+        <menus>
+            <Menu text="Help">
+                <MenuItem text="Help" onAction="#handleHelp"/>
+            </Menu>
+        </menus>
+    </MenuBar>
+    <Button fx:id="drawTreeButton" layoutX="418.0" layoutY="49.0" mnemonicParsing="false" onAction="#renderTree" text="Draw tree" />
+    <ScrollPane fx:id="drawPane" layoutX="25.0" layoutY="130.0" prefHeight="610.0" prefWidth="350.0" style="-fx-border-width: 5;">
         <VBox fx:id="vbox" alignment="TOP_CENTER" prefHeight="554.0" prefWidth="347.0" spacing="25.0">
             <padding>
-                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0"/>
+                <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
             </padding>
         </VBox>
     </ScrollPane>
     <ScrollPane layoutX="723.0" layoutY="210.0" prefHeight="531.0" prefWidth="756.0">
-        <VBox fx:id="spanTreePane" layoutX="432.0" layoutY="130.0" prefHeight="528.0" prefWidth="754.0" spacing="20"
-              style="-fx-border-width: 5;">
+        <VBox fx:id="spanTreePane" layoutX="432.0" layoutY="130.0" prefHeight="528.0" prefWidth="754.0" spacing="20" style="-fx-border-width: 5;">
             <padding>
-                <Insets bottom="50.0" left="50.0" right="50.0" top="50.0"/>
+                <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
             </padding>
         </VBox>
     </ScrollPane>
-    <Button fx:id="nextButton" layoutX="418.0" layoutY="88.0" mnemonicParsing="false" onAction="#appendSquare"
-            text="Append square"/>
-    <Button fx:id="clearButton" layoutX="503.0" layoutY="49.0" mnemonicParsing="false" onAction="#clear" text="Clear"/>
+    <Button fx:id="nextButton" layoutX="418.0" layoutY="88.0" mnemonicParsing="false" onAction="#appendSquare" text="Append square" />
+    <Button fx:id="clearButton" layoutX="503.0" layoutY="49.0" mnemonicParsing="false" onAction="#clear" text="Clear" />
     <Label layoutX="981.0" layoutY="170.0" text="Ternary tree">
         <font>
-            <Font size="27.0"/>
+            <Font size="27.0" />
         </font>
     </Label>
-    <Label layoutX="25.0" layoutY="36.0" prefHeight="77.0" prefWidth="263.0"
-           text="A is contrary to E i.e. ~A or ~E.&#10;A is contradictory to O i.e. A xor O.&#10;A is subalternated to I i.e. A and ~I."/>
-    <Button fx:id="generateMachineButton" disable="true" layoutX="418.0" layoutY="130.0" mnemonicParsing="false"
-            onAction="#openWindowStateMachine" text="Generate state machine"/>
-    <VBox fx:id="variablesVBox" layoutX="389.0" layoutY="275.0" prefHeight="464.0" prefWidth="315.0">
-        <ListView fx:id="variablesListView" prefHeight="464.0" prefWidth="315.0"/>
+    <Label layoutX="25.0" layoutY="36.0" prefHeight="77.0" prefWidth="263.0" text="A is contrary to E i.e. ~A or ~E.&#10;A is contradictory to O i.e. A xor O.&#10;A is subalternated to I i.e. A and ~I." />
+    <Button fx:id="generateMachineButton" disable="true" layoutX="418.0" layoutY="130.0" mnemonicParsing="false" onAction="#openWindowStateMachine" text="Generate state machine" />
+    <VBox fx:id="variablesVBox" layoutX="389.0" layoutY="275.0" prefHeight="216.0" prefWidth="308.0">
+        <ListView fx:id="variablesListView" prefHeight="217.0" prefWidth="292.0" />
     </VBox>
-    <Label fx:id="variablesLabel" layoutX="379.0" layoutY="217.0" prefHeight="18.0" prefWidth="87.0"
-           text="State variables:"/>
-    <Label fx:id="stateNameLabel" layoutX="464.0" layoutY="217.0" prefHeight="18.0" prefWidth="252.0"/>
-    <Button layoutX="385.0" layoutY="249.0" onAction="#addItem" text="+"/>
+    <Label fx:id="variablesLabel" layoutX="379.0" layoutY="217.0" prefHeight="18.0" prefWidth="87.0" text="State variables:" />
+    <Label fx:id="stateNameLabel" layoutX="464.0" layoutY="217.0" prefHeight="18.0" prefWidth="252.0" />
+    <Button layoutX="385.0" layoutY="249.0" onAction="#addItem" text="+" />
 </AnchorPane>

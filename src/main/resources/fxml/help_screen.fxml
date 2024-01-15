@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="639.0" prefWidth="920.0" xmlns="http://javafx.com/javafx/19" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label layoutX="271.0" layoutY="32.0" text="User instructions">
+         <font>
+            <Font size="23.0" />
+         </font>
+      </Label>
+      <TabPane layoutX="61.0" layoutY="89.0" prefHeight="516.0" prefWidth="839.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+          <Tab text="States">
+              <content>
+                  <!-- Replace this with your desired content -->
+                  <AnchorPane prefHeight="334.0" prefWidth="585.0">
+                      <Label layoutX="14.0" layoutY="14.0" text="► At the very beggining you have to provide states' names in each vertice of square. " />
+                     <ImageView fitHeight="281.0" fitWidth="448.0" layoutX="14.0" layoutY="39.0" pickOnBounds="true" preserveRatio="true">
+                        <image>
+                           <Image url="@../images/square-ss.png" />
+                        </image>
+                     </ImageView>
+                     <Label layoutX="14.0" layoutY="299.0" prefHeight="120.0" prefWidth="526.0" text="► They should be named linguistically correct and their relations in particular order:&#10;- A (left top vertice) CONTRARY E (right top vertice)               i.e. A =&gt; ~E &#10;- A CONTRADICTORY O (right bottom vertice)                        i.e A XOR O&#10;- A SUBALTERNATION I (left bottom vetice)                            i.e  A =&gt; I" />
+                  </AnchorPane>
+              </content>
+            </Tab>
+          <Tab text="State variables">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="14.0" text="► You can describe each state using state variables. They describe active state." />
+                        <ImageView fitHeight="372.0" fitWidth="518.0" layoutX="14.0" layoutY="49.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/variables-ss.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content></Tab>
+            <Tab text="Ternary tree">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="14.0" layoutY="14.0" prefHeight="34.0" prefWidth="538.0" text="► After filling the square and optional variables click button &quot;Draw tree&quot; to draw a ternary tree&#10; which nodes are merged states. Then pick one of the nodes and you can expand tree with new states" />
+                        <ImageView fitHeight="426.0" fitWidth="686.0" layoutX="21.0" layoutY="62.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/tree-ss.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content></Tab>
+            <Tab text="State machine">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="21.0" layoutY="13.0" prefHeight="23.0" prefWidth="670.0" text="► After decision of not expanding tree further click &quot;Generate state machine&quot; button to draw state machine of provided states" />
+                        <ImageView fitHeight="453.0" fitWidth="647.0" layoutX="14.0" layoutY="36.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/state-machine-ss.png" />
+                           </image>
+                        </ImageView>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab text="Trigger">
+               <content>
+                  <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                     <children>
+                        <Label layoutX="11.0" layoutY="14.0" prefHeight="34.0" prefWidth="695.0" text="► After set transitions between states click trigger to move throughout states and see state variables has changed when avtivated specific states." />
+                        <TabPane layoutX="20.0" layoutY="52.0" prefHeight="425.0" prefWidth="769.0" tabClosingPolicy="UNAVAILABLE">
+                          <tabs>
+                            <Tab text="Taxiing&amp;immobilising active">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="306.0" prefWidth="623.0">
+                                       <children>
+                                          <ImageView fitHeight="384.0" fitWidth="646.0" layoutX="82.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/Zrzut%20ekranu%202024-01-15%20175809.png" />
+                                             </image>
+                                          </ImageView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab text="~Immobilising&amp;stop active">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="365.0" prefWidth="706.0">
+                                       <children>
+                                          <ImageView fitHeight="391.0" fitWidth="610.0" layoutX="57.0" layoutY="3.0" pickOnBounds="true" preserveRatio="true">
+                                             <image>
+                                                <Image url="@../images/Zrzut%20ekranu%202024-01-15%20175832.png" />
+                                             </image>
+                                          </ImageView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>

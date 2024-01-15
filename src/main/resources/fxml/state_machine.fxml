@@ -9,16 +9,13 @@
         <menus>
             <Menu text="File">
                 <items>
-                    <MenuItem onAction="#handleOpen" text="Open" />
                     <MenuItem onAction="#handleSave" text="Save" />
                     <MenuItem onAction="#handleExit" text="Exit" />
                 </items>
             </Menu>
             <Menu text="Edit">
-                <!-- Add Edit menu items here -->
             </Menu>
             <Menu text="Help">
-                <!-- Add Help menu items here -->
             </Menu>
         </menus>
     </MenuBar>
