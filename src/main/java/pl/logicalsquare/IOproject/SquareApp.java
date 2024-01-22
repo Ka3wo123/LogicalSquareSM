@@ -1,48 +1,23 @@
 package pl.logicalsquare.IOproject;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.Window;
-import javafx.util.Duration;
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class SquareApp extends Application {
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(Stage stage) {
         showMainPage(stage);
-//        FXMLLoader splashLoader = new FXMLLoader(SquareApp.class.getResource("/fxml/splash_screen.fxml"));
-//        Scene splashScene = new Scene(splashLoader.load(), Color.TRANSPARENT);
-//        Stage splashStage = new Stage();
-//        splashStage.setScene(splashScene);
-//
-//        PauseTransition pauseTransition = new PauseTransition(Duration.seconds(2));
-//        pauseTransition.setOnFinished(e -> {
-//            FadeTransition fadeTransition = new FadeTransition(Duration.seconds(3), splashScene.getRoot());
-//            fadeTransition.setFromValue(1);
-//            fadeTransition.setToValue(0);
-//
-//            fadeTransition.setOnFinished(event -> {
-//                splashStage.close();
-//                showMainPage(stage);
-//            });
-//            fadeTransition.play();
-//        });
-//
-//        pauseTransition.play();
-//        splashStage.setTitle("State machine generator");
-//        splashStage.show();
     }
 
     private void showMainPage(Stage primaryStage) {
         try {
             FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("/fxml/main_page.fxml"));
-            String css = this.getClass().getResource("/css/style.css").toExternalForm();
+            String css = Objects.requireNonNull(this.getClass().getResource("/css/style.css")).toExternalForm();
             Scene mainScene = new Scene(mainLoader.load(), javafx.scene.paint.Color.TRANSPARENT);
             mainScene.getStylesheets().add(css);
             primaryStage.setScene(mainScene);

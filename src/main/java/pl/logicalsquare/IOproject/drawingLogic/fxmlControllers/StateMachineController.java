@@ -1,17 +1,13 @@
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
-import javafx.stage.Popup;
-import javafx.util.Duration;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraph;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -19,20 +15,28 @@ import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
-
+import javafx.util.Duration;
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+/**
+ * Secondary controller for StateMachine window. It contains interactive state machine diagram on which transitions are
+ * user-defined, trigger button which allows to trace flow of the states and scenario also. Furthermore, user can trace
+ * states' variables' values depending on current state.
+ */
 public class StateMachineController {
 
     @FXML
@@ -85,6 +89,13 @@ public class StateMachineController {
         }
     }
 
+    /**
+     * Draws interactive state machine diagram with expanding transitions (those between situations).
+     * @param graph mxGraph of states built in Main window
+     * @param listOfMap Variables describing states as list.
+     * @param statesList Merged states from ternary tree.
+     * @param expansionStates States from which will it expand.
+     */
     public void drawStateMachine(mxGraph graph, List<Map<TextField, ListView<String>>> listOfMap, List<String> statesList, List<String> expansionStates) {
         Object parent = graph.getDefaultParent();
 
@@ -274,6 +285,9 @@ public class StateMachineController {
         }
     }
 
+    /**
+     * Creates state with necessary features.
+     */
     private StackPane createStateFromGraph(mxCell cell, double x, double y, String label) {
         StackPane stackPane = new StackPane();
         double relativeX;
@@ -526,7 +540,9 @@ public class StateMachineController {
     }
 
 
-
+    /**
+     * Jumps over states in user-defined order, based on transitions. On current state it changes values of state variables.
+     */
     public void triggerTransition(ActionEvent event) {
         Set<StackPane> uniqueClickedStatesSet = new HashSet<>();
 

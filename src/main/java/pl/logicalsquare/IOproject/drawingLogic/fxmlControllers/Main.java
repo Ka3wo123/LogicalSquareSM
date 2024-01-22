@@ -22,6 +22,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Main controller class for Main Menu window. It contains logic for defining states in logical square and their
+ * describing variables and drawing ternary tree also.
+ */
 public class Main implements Initializable {
     @FXML
     public Button drawTreeButton;
@@ -76,6 +80,9 @@ public class Main implements Initializable {
         expansionStates = new ArrayList<>();
     }
 
+    /**
+     * Creates interactive state machine diagram in StateMachine window based on built MxGraph.
+     */
     @FXML
     public void openWindowStateMachine(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/state_machine.fxml"));
@@ -92,6 +99,9 @@ public class Main implements Initializable {
         stage.show();
     }
 
+    /**
+     * Opens Help window with user instructions.
+     */
     @FXML
     private void handleHelp(ActionEvent event) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/help_screen.fxml"));
@@ -102,6 +112,10 @@ public class Main implements Initializable {
         stage.show();
     }
 
+    /**
+     * Merges states in specific order: A-I, I-O, E-O vertices and assigns variables describing those states.
+     * @return Three merged states as a graph.
+     */
     private mxGraph createMxGraph() {
         mxGraph graph = new mxGraph();
         Object parent = graph.getDefaultParent();
@@ -127,9 +141,9 @@ public class Main implements Initializable {
                 String stateI = textFieldI.getText();
                 String stateO = textFieldO.getText();
 
-                Object state1 = graph.insertVertex(parent, null, stateA + " &\n" + stateI, 20 + i, 20, 100, 60);
-                Object state2 = graph.insertVertex(parent, null, stateI + " &\n" + stateO, 150 + i, 150, 100, 60);
-                Object state3 = graph.insertVertex(parent, null, stateE + " &\n" + stateO, 300 + i, 20, 100, 60);
+                graph.insertVertex(parent, null, stateA + " &\n" + stateI, 20 + i, 20, 100, 60);
+                graph.insertVertex(parent, null, stateI + " &\n" + stateO, 150 + i, 150, 100, 60);
+                graph.insertVertex(parent, null, stateE + " &\n" + stateO, 300 + i, 20, 100, 60);
 
             }
         } finally {
@@ -144,6 +158,9 @@ public class Main implements Initializable {
     }
 
 
+    /**
+     * Allows user to add new logical square in order to provide new states for subsequent situation.
+     */
     public void appendSquare() {
         isGeneratable = true;
         drawTreeButton.setDisable(false);
@@ -171,6 +188,9 @@ public class Main implements Initializable {
     }
 
 
+    /**
+     * Draws ternary tree of merged states. Allows user to pick any(one) node from which new states will expand.
+     */
     @FXML
     public void renderTree() {
 
@@ -270,13 +290,6 @@ public class Main implements Initializable {
         return edge;
     }
 
-    private void addInitialState() {
-        Text text = new Text(500, 5, "0");
-        text.setFill(Color.BLACK);
-
-        spanTreePane.getChildren().add(text);
-    }
-
 
     public void clear() {
         drawTreeButton.setDisable(true);
@@ -293,6 +306,10 @@ public class Main implements Initializable {
 
     }
 
+    /**
+     * Draws square with TextFields on vertices. Displays variables list depending on chosen vertex.
+     * @return Group of square and input fields.
+     */
     private Group createSquare() {
         Group object = new Group();
         Rectangle square = new Rectangle(100, 100);
@@ -360,6 +377,9 @@ public class Main implements Initializable {
         return object;
     }
 
+    /**
+     * Allows to add new variables to chosen state. It has predefined values which can be assigned to user-named variables.
+     */
     @FXML
     private void addItem() {
         TextInputDialog dialog = new TextInputDialog();
