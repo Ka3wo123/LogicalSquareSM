@@ -23,7 +23,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Klasa kontrolera dla głównego pliku FXML. Obsługuje komponenty interfejsu graficznego oraz związane z nimi akcje.
+ * Main controller class for Main Menu window. It contains logic for defining states in logical square and their
+ * describing variables and drawing ternary tree also.
  */
 public class Main implements Initializable {
     @FXML
@@ -71,20 +72,15 @@ public class Main implements Initializable {
 
     private List<String> expansionStates;
 
-    /**
-     * Konstruktor inicjalizujący zmienne i listy używane w kontrolerze.
-     */
     public Main() {
         spanTree = new Group();
         stateList = new ArrayList<>();
         listOfMaps = new ArrayList<>();
         expansionStates = new ArrayList<>();
     }
+
     /**
-     * Obsługuje zdarzenie akcji otwierania okna maszyny stanowej.
-     *
-     * @param event Zdarzenie akcji wywołane przez przycisk "Otwórz maszynę stanową".
-     * @throws IOException Jeśli wystąpi błąd wejścia-wyjścia podczas ładowania pliku FXML maszyny stanowej.
+     * Creates interactive state machine diagram in StateMachine window based on built MxGraph.
      */
     @FXML
     public void openWindowStateMachine(ActionEvent event) throws IOException {
@@ -101,11 +97,10 @@ public class Main implements Initializable {
         stage.setTitle("State machine");
         stage.show();
     }
+
+
     /**
-     * Obsługuje zdarzenie akcji dla przycisku "Pomoc", otwierając nowe okno z informacjami pomocy.
-     *
-     * @param event Zdarzenie akcji wywołane przez przycisk "Pomoc".
-     * @throws IOException Jeśli wystąpi błąd wejścia-wyjścia podczas ładowania pliku FXML ekranu pomocy.
+     * Opens Help window with user instructions.
      */
     @FXML
     private void handleHelp(ActionEvent event) throws IOException {
@@ -116,10 +111,11 @@ public class Main implements Initializable {
         stage.setTitle("Help");
         stage.show();
     }
+
+
     /**
-     * Tworzy obiekt mxGraph i rysuje maszynę stanową na podstawie dostarczonych danych wejściowych.
-     *
-     * @return Obiekt mxGraph reprezentujący narysowaną maszynę stanową.
+     * Merges states in specific order: A-I, I-O, E-O vertices and assigns variables describing those states.
+     * @return Three merged states as a graph.
      */
     private mxGraph createMxGraph() {
         mxGraph graph = new mxGraph();
@@ -146,9 +142,9 @@ public class Main implements Initializable {
                 String stateI = textFieldI.getText();
                 String stateO = textFieldO.getText();
 
-                Object state1 = graph.insertVertex(parent, null, stateA + " &\n" + stateI, 20 + i, 20, 100, 60);
-                Object state2 = graph.insertVertex(parent, null, stateI + " &\n" + stateO, 150 + i, 150, 100, 60);
-                Object state3 = graph.insertVertex(parent, null, stateE + " &\n" + stateO, 300 + i, 20, 100, 60);
+                graph.insertVertex(parent, null, stateA + " &\n" + stateI, 20 + i, 20, 100, 60);
+                graph.insertVertex(parent, null, stateI + " &\n" + stateO, 150 + i, 150, 100, 60);
+                graph.insertVertex(parent, null, stateE + " &\n" + stateO, 300 + i, 20, 100, 60);
 
             }
         } finally {
@@ -162,8 +158,9 @@ public class Main implements Initializable {
         return graph;
     }
 
+
     /**
-     * Dodaje kwadrat do interfejsu graficznego, umożliwiając rysowanie struktury drzewa.
+     * Allows user to add new logical square in order to provide new states for subsequent situation.
      */
     public void appendSquare() {
         isGeneratable = true;
@@ -178,19 +175,11 @@ public class Main implements Initializable {
 
         createSquare();
     }
-    /**
-     * Dodaje słuchacza do pola tekstowego, aby aktualizować etykietę po zmianie tekstu.
-     *
-     * @param textField Pole tekstowe, do którego dodawany jest słuchacz.
-     */
+
     private void addTextFieldListener(TextField textField) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> stateNameLabel.setText(newValue));
     }
-    /**
-     * Ustawia zdarzenie kliknięcia dla pola tekstowego w celu zaktualizowania aktywnego pola tekstowego i pokazania widoku listy zmiennych.
-     *
-     * @param textField Pole tekstowe, do którego dodawane jest zdarzenie kliknięcia.
-     */
+
     private void setTextFieldClickEvent(TextField textField) {
         textField.setOnMouseClicked(event -> {
             activeTextField = textField;
@@ -198,9 +187,8 @@ public class Main implements Initializable {
             showVariablesListView(textField);
         });
     }
-
     /**
-     * Rysuje strukturę drzewa na interfejsie graficznym na podstawie danych wprowadzonych przez użytkownika.
+     * Draws ternary tree of merged states. Allows user to pick any(one) node from which new states will expand.
      */
     @FXML
     public void renderTree() {
@@ -301,19 +289,6 @@ public class Main implements Initializable {
         return edge;
     }
 
-    /**
-     * Dodaje stan początkowy do interfejsu graficznego.
-     */
-    private void addInitialState() {
-        Text text = new Text(500, 5, "0");
-        text.setFill(Color.BLACK);
-
-        spanTreePane.getChildren().add(text);
-    }
-
-    /**
-     * Czyści interfejs graficzny, resetując różne komponenty i listy.
-     */
     public void clear() {
         drawTreeButton.setDisable(true);
         spanTreePane.getChildren().clear();
@@ -328,10 +303,10 @@ public class Main implements Initializable {
         posYend = posYstart + 100;
 
     }
+
     /**
-     * Tworzy kwadrat z powiązanymi polami tekstowymi do wprowadzania danych przez użytkownika.
-     *
-     * @return Obiekt Group reprezentujący utworzony kwadrat.
+     * Draws square with TextFields on vertices. Displays variables list depending on chosen vertex.
+     * @return Group of square and input fields.
      */
     private Group createSquare() {
         Group object = new Group();
@@ -399,8 +374,10 @@ public class Main implements Initializable {
         }
         return object;
     }
+
+
     /**
-     * Dodaje element do widoku listy zmiennych na podstawie wprowadzonych przez użytkownika danych.
+     * Allows to add new variables to chosen state. It has predefined values which can be assigned to user-named variables.
      */
     @FXML
     private void addItem() {

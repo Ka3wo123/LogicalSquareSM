@@ -1,18 +1,11 @@
-
 package pl.logicalsquare.IOproject.drawingLogic.fxmlControllers;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.util.Duration;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGeometry;
 import com.mxgraph.view.mxGraph;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,24 +15,28 @@ import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.*;
 import javafx.scene.image.WritableImage;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+
 /**
- * Klasa kontrolera do obsługi logiki maszyny stanów w aplikacji JavaFX.
+ * Secondary controller for StateMachine window. It contains interactive state machine diagram on which transitions are
+ * user-defined, trigger button which allows to trace flow of the states and scenario also. Furthermore, user can trace
+ * states' variables' values depending on current state.
  */
-// Importy pozostałych klas i pakietów
 public class StateMachineController {
 
     @FXML
@@ -53,56 +50,34 @@ public class StateMachineController {
     private Label scenarioLabel;
     private static int levelCount = 0;
     private StackPane sourceState;
-    private StackPane currentState;
-    private static int currentStateIdx = 0;
     private List<StackPane> stateTrack;
-    private List<StackPane> clickedStatesList = new ArrayList<>();
+    private Map<StackPane, List<String>> variablesMap;
+    private int currentTransitionIndex = 0;
 
-    // Deklaracje pól
-
-    /**
-     * Konstruktor inicjalizujący obiekty grupy reprezentującej stan maszyny, stanu źródłowego i listę stanów.
-     */
     public StateMachineController() {
         stateMachine = new Group();
         sourceState = new StackPane();
-        stateTrack = new LinkedList<>();
+        stateTrack = new ArrayList<>();
+        variablesMap = new HashMap<>();
+
     }
-    /**
-     * Obsługuje zdarzenie otwarcia pliku.
-     */
-    public void handleOpen(ActionEvent event) {
-        System.out.println("Open clicked");
-    }
-    /**
-     * Obsługuje zdarzenie zamknięcia aplikacji.
-     */
+
     public void handleExit(ActionEvent event) {
-        // Logika obsługi zdarzenia zamknięcia aplikacji
-        System.out.println("Exit cliced");
         Stage stage = (Stage) stateMachinePane.getScene().getWindow();
         stage.close();
     }
-    /**
-     * Obsługuje zdarzenie zapisu stanu maszyny.
-     */
+
     public void handleSave(ActionEvent event) {
-        // Logika obsługi zdarzenia zapisu stanu maszyny
-        System.out.println("Save clicked");
         saveScreenshot();
     }
-    /**
-     * Zapisuje zrzut ekranu stanu maszyny do pliku PNG.
-     */
+
     private void saveScreenshot() {
-        // Logika zapisu zrzutu ekranu
         WritableImage snapshot = stateMachinePane.snapshot(new SnapshotParameters(), null);
 
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Screenshot");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PNG files (*.png)", "*.png"));
 
-        // Wybierz miejsce do zapisania pliku
         File file = fileChooser.showSaveDialog(stateMachinePane.getScene().getWindow());
 
         if (file != null) {
@@ -113,11 +88,15 @@ public class StateMachineController {
             }
         }
     }
+
     /**
-     * Rysuje state machine na podstawie grafu, listy map i informacji o stanach.
+     * Draws interactive state machine diagram with expanding transitions (those between situations).
+     * @param graph mxGraph of states built in Main window
+     * @param listOfMap Variables describing states as list.
+     * @param statesList Merged states from ternary tree.
+     * @param expansionStates States from which will it expand.
      */
     public void drawStateMachine(mxGraph graph, List<Map<TextField, ListView<String>>> listOfMap, List<String> statesList, List<String> expansionStates) {
-        // Logika rysowania stanu maszyny
         Object parent = graph.getDefaultParent();
 
         StringBuilder scenario = new StringBuilder();
@@ -153,8 +132,6 @@ public class StateMachineController {
         initialStackPane.setLayoutX(x + 300);
         initialStackPane.setLayoutY(y - 80);
 
-        currentState = initialStackPane;
-
         stateMachinePane.getChildren().add(initialStackPane);
 
         Object[] cells = graph.getChildCells(parent);
@@ -163,7 +140,7 @@ public class StateMachineController {
         for (int i = 0; i < cells.length; i++) {
             Object cell = cells[i];
 
-            if(i % 3 == 0 && i != 0) {
+            if (i % 3 == 0 && i != 0) {
                 k++;
             }
 
@@ -178,12 +155,14 @@ public class StateMachineController {
                 } else if (i % 3 == 1) {
                     list1 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
                     list2 = listOfMap.get(i + 2 + k).entrySet().iterator().next().getValue();
-                } else if(i % 3 == 2){
+                } else if (i % 3 == 2) {
                     list1 = listOfMap.get(i - 1 + k).entrySet().iterator().next().getValue();
                     list2 = listOfMap.get(i + 1 + k).entrySet().iterator().next().getValue();
                 }
 
-                createStateFromGraph(mxCell, x, y, textToSet, getListViewItemsAsString(list1).concat(getListViewItemsAsString(list2)));
+                StackPane state = createStateFromGraph(mxCell, x, y, textToSet);
+                createPopUp(state, getListViewItemsAsString(list1, list2, state));
+
             }
         }
 
@@ -201,9 +180,7 @@ public class StateMachineController {
             }
         }
     }
-    /**
-     * Znajduje stan na podstawie etykiety.
-     */
+
     private StackPane findStateByLabel(String label) {
         for (Node node : stateMachinePane.getChildren()) {
             if (node instanceof StackPane stackPane) {
@@ -218,9 +195,21 @@ public class StateMachineController {
         }
         return null;
     }
-    /**
-     * Tworzy przerywana strzałkę reprezentującą przejście między stanami.
-     */
+
+    private void createPopUp(StackPane stackPane, String listView) {
+        Popup popup = new Popup();
+
+        VBox popupContent = new VBox();
+        popupContent.setStyle("-fx-background-color: #93E8EB; -fx-padding: 10px; -fx-border-color: black; -fx-border-width: 1px;");
+        popupContent.getChildren().add(new Label(listView));
+
+        popup.getContent().add(popupContent);
+
+        stackPane.addEventHandler(MouseEvent.MOUSE_ENTERED, event -> popup.show(stateMachinePane.getScene().getWindow(), event.getScreenX() + 20, event.getScreenY()));
+
+        stackPane.addEventHandler(MouseEvent.MOUSE_EXITED, event -> popup.hide());
+    }
+
     private void createDashedTransition(StackPane fromState, StackPane toState, boolean isInitial) {
         double fromX = fromState.getLayoutX() + 50;
         double fromY = fromState.getLayoutY() + 60;
@@ -247,9 +236,7 @@ public class StateMachineController {
 
         stateMachinePane.getChildren().addAll(transition, arrowhead);
     }
-    /**
-     * Tworzy czubek strzalki reprezentującą przejście między stanami.
-     */
+
     private Polygon createArrowhead(double toX, double toY, double fromX, double fromY, boolean isSelfTransition) {
         Polygon arrowhead = new Polygon();
         arrowhead.setFill(Color.BLACK);
@@ -278,12 +265,9 @@ public class StateMachineController {
 
         return arrowhead;
     }
-    /**
-     * Obsługuje kliknięcie na stan maszyny.
-     */
+
     private void handleStateClick(StackPane state) {
-        // Dodaj kliknięty stan do listy
-        clickedStatesList.add(state);
+        stateTrack.add(state);
 
         if (sourceState == null) {
             sourceState = state;
@@ -300,10 +284,11 @@ public class StateMachineController {
             sourceState = null;
         }
     }
+
     /**
-     * Tworzy stan na podstawie informacji z obiektu mxCell.
+     * Creates state with necessary features.
      */
-    private void createStateFromGraph(mxCell cell, double x, double y, String label, String listView) {
+    private StackPane createStateFromGraph(mxCell cell, double x, double y, String label) {
         StackPane stackPane = new StackPane();
         double relativeX;
         double relativeY;
@@ -340,10 +325,7 @@ public class StateMachineController {
             state.getScene().setCursor(Cursor.DEFAULT);
         });
 
-        Tooltip tooltip = new Tooltip(listView);
-        tooltip.setShowDelay(Duration.millis(1));
-        tooltip.setHideDelay(Duration.millis(5));
-        Tooltip.install(stackPane, tooltip);
+
 
         Text textNode = new Text(label);
 
@@ -365,25 +347,54 @@ public class StateMachineController {
             this.x = 100;
         }
 
+        return stackPane;
     }
 
-    /**
-     * Konwertuje elementy z ListView na tekst.
-     */
-    private String getListViewItemsAsString(ListView<String> listView) {
-        if (listView != null) {
+    private String getListViewItemsAsString(ListView<String> listView, ListView<String> listView2, StackPane stackPane) {
+        List<String> valuesList1 = new ArrayList<>();
+        List<String> valuesList2 = new ArrayList<>();
+
+        if (listView != null && listView2 != null) {
             StringBuilder itemsText = new StringBuilder();
             for (String item : listView.getItems()) {
-                itemsText.append("- ").append(item).append("\n");
+                String[] split = item.split("::");
+                String valueForVariable;
+                switch (split[1].trim()) {
+                    case "true" -> valueForVariable = "false";
+                    case "false" -> valueForVariable = "true";
+                    case ">=0" -> valueForVariable = "<0";
+                    case "<=0" -> valueForVariable = ">0";
+                    case "=0" -> valueForVariable = "!=0";
+                    case "!=0" -> valueForVariable = "=0";
+                    default -> valueForVariable = "";
+                }
+                valuesList1.add(split[0] + " :: " + valueForVariable);
+                itemsText.append(split[0].trim()).append(" :: ").append(valueForVariable).append("\n");
             }
+
+            for (String item : listView2.getItems()) {
+                String[] split = item.split("::");
+                String valueForVariable;
+                switch (split[1].trim()) {
+                    case "true" -> valueForVariable = "false";
+                    case "false" -> valueForVariable = "true";
+                    case ">=0" -> valueForVariable = "<0";
+                    case "<=0" -> valueForVariable = ">0";
+                    case "=0" -> valueForVariable = "!=0";
+                    case "!=0" -> valueForVariable = "=0";
+                    default -> valueForVariable = "";
+                }
+                valuesList2.add(split[0] + " :: " + valueForVariable);
+                itemsText.append(split[0].trim()).append(" :: ").append(valueForVariable).append("\n");
+            }
+            valuesList1.addAll(valuesList2);
+            variablesMap.put(stackPane, valuesList1);
             return itemsText.toString();
         } else {
             return "";
         }
     }
-    /**
-     * Tworzy animowaną strzałkę reprezentującą przejście między stanami.
-     */
+
     private void createTransition(StackPane fromState, StackPane toState, String transitionName) {
         Line transition = new Line();
         Line helpTransition1 = new Line();
@@ -423,7 +434,6 @@ public class StateMachineController {
             Text transitionLabel = new Text(labelX, labelY, transitionName);
             transitionLabel.setFill(Color.RED);
 
-            stateTrack.add(fromState);
 
             stateMachinePane.getChildren().addAll(transition, helpTransition2, helpTransition1, arrowhead, transitionLabel);
 
@@ -501,64 +511,91 @@ public class StateMachineController {
             stateMachinePane.getChildren().addAll(transition, arrowhead, transitionLabel);
         }
     }
-    private int currentTransitionIndex = 0;
+
+    private void setNewVariables(StackPane state) {
+        List<String> newList = new ArrayList<>();
+        List<String> listString = variablesMap.get(state);
+        String valueForVariable = "";
+        StringBuilder sb = new StringBuilder();
+
+        for (String s : listString) {
+            String[] split = s.split("::");
+            switch (split[1].trim()) {
+                case "true" -> valueForVariable = "false";
+                case "false" -> valueForVariable = "true";
+                case ">=0" -> valueForVariable = "<0";
+                case "<=0" -> valueForVariable = ">0";
+                case "<0" -> valueForVariable = ">=0";
+                case ">0" -> valueForVariable = "<=0";
+                case "=0" -> valueForVariable = "!=0";
+                case "!=0" -> valueForVariable = "=0";
+                default -> valueForVariable = "";
+            }
+            newList.add(split[0].concat(" :: " ).concat(valueForVariable));
+            sb.append(split[0]).append(" :: ").append(valueForVariable).append("\n");
+        }
+        variablesMap.put(state, newList);
+        createPopUp(state, sb.toString());
+
+    }
+
+
     /**
-     * Wywołuje animację przejścia między stanami.
+     * Jumps over states in user-defined order, based on transitions. On current state it changes values of state variables.
      */
     public void triggerTransition(ActionEvent event) {
-        // Stworzenie zbioru dla unikalnych stanów
         Set<StackPane> uniqueClickedStatesSet = new HashSet<>();
 
-        // Iteracja po liście clickedStatesList, aby pozostawić tylko unikalne stany
-        clickedStatesList.removeIf(state -> !uniqueClickedStatesSet.add(state));
+        stateTrack.removeIf(state -> !uniqueClickedStatesSet.add(state));
 
-        // Sprawdzenie, czy istnieją kolejne stany do animacji
-        if (currentTransitionIndex < clickedStatesList.size()) {
-            // Wyświetl kliknięte stany na konsoli (możesz dostosować wyświetlanie według potrzeb)
-            System.out.println("Clicked State: " + clickedStatesList.get(currentTransitionIndex));
+        if (currentTransitionIndex < stateTrack.size()) {
+            System.out.println("Clicked State: " + stateTrack.get(currentTransitionIndex));
+            System.out.println("Index: " + currentTransitionIndex);
+            if(currentTransitionIndex > 0)
+                System.out.println("prev state: " + stateTrack.get(currentTransitionIndex - 1));
 
-            // Animacja zmiany koloru
-            StackPane state = clickedStatesList.get(currentTransitionIndex);
+            if(currentTransitionIndex > 0) {
+                setNewVariables(stateTrack.get(currentTransitionIndex - 1));
+            }
+
+            setNewVariables(stateTrack.get(currentTransitionIndex));
+
+            StackPane state = stateTrack.get(currentTransitionIndex);
             Timeline timeline = new Timeline();
 
-            // Zmiana koloru na czerwony
             KeyValue keyValueRed = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.RED);
             KeyFrame keyFrameRed = new KeyFrame(Duration.ZERO, keyValueRed);
 
             timeline.getKeyFrames().add(keyFrameRed);
 
-            // Przywrócenie pierwotnego koloru
             KeyValue keyValueOriginal = new KeyValue(((Rectangle) state.getChildren().get(0)).fillProperty(), Color.LIGHTBLUE);
             KeyFrame keyFrameOriginal = new KeyFrame(Duration.seconds(5), keyValueOriginal);
 
             timeline.getKeyFrames().add(keyFrameOriginal);
 
-            // Odtwórz animację
             timeline.play();
 
-            // Zwiększ indeks dla następnego kliknięcia
             currentTransitionIndex++;
         } else {
             System.out.println("No more states to transition.");
-            // Zresetuj indeks, aby można było ponownie przejść przez listę
+            setNewVariables(stateTrack.get(currentTransitionIndex - 1));
             currentTransitionIndex = 0;
         }
 
 
     }
-    /**
-     * Obsługuje zdarzenie resetowania stanu maszyny.
-     */
+
     public void handleReset(ActionEvent event) {
-        // Usuń strzałki
-        stateMachinePane.getChildren().removeIf(node -> node instanceof Line || node instanceof Polygon);
+        stateMachinePane.getChildren().removeIf(node -> {
+            if (node instanceof Line line) {
+                return line.getStrokeDashArray().isEmpty();
+            } else if (node instanceof Polygon polygon) {
+                Node nextNode = stateMachinePane.getChildren().get(stateMachinePane.getChildren().indexOf(polygon));
+                return nextNode instanceof Line && ((Line) nextNode).getStrokeDashArray().isEmpty();
+            } else return node instanceof Text;
+        });
 
-        // Wyczyść listę stanów
-        clickedStatesList.clear();
-
-        // Zresetuj indeks dla kolejnych kliknięć
+        stateTrack.clear();
         currentTransitionIndex = 0;
     }
-
-
 }
